@@ -1,0 +1,2740 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#08090D">
+<meta name="description" content="ZetCode — کدگذاری نوری متن با فشرده‌سازی، رمزنگاری و تصحیح خطا">
+<title>ZetCode — کدگذاری نوری متن</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#08090D; --surface:#101320; --surface-2:#161A28; --surface-3:#1C2132;
+    --line:rgba(255,255,255,.07); --line-2:rgba(255,255,255,.13);
+    --text:#EEF0F6; --muted:#8B92A6; --muted-2:#666D80;
+    --accent:#6D6AF7; --accent-2:#22D3EE;
+    --success:#10B981; --danger:#F04444; --warning:#F59E0B;
+    --r-lg:20px; --r-md:14px; --r-sm:10px;
+    --shadow-card:0 30px 70px -40px rgba(0,0,0,.95);
+    --grad-accent:linear-gradient(135deg,var(--accent),#4F8EF7 55%,var(--accent-2));
+  }
+  [data-theme="light"]{
+    --bg:#F4F5FA; --surface:#FFFFFF; --surface-2:#F2F3F8; --surface-3:#E8EAF2;
+    --line:rgba(10,12,20,.08); --line-2:rgba(10,12,20,.16);
+    --text:#151827; --muted:#585E70; --muted-2:#8A90A2;
+    --shadow-card:0 24px 50px -30px rgba(30,40,80,.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0;padding:0;background:var(--bg);color:var(--text);
+    font-family:'Vazirmatn','Segoe UI',Tahoma,Arial,sans-serif;min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  body{
+    background-image:
+      radial-gradient(880px 480px at 88% -12%, rgba(109,106,247,.16), transparent 62%),
+      radial-gradient(720px 420px at 6% -4%, rgba(34,211,238,.10), transparent 60%);
+    background-repeat:no-repeat;background-attachment:fixed;
+    display:flex;flex-direction:column;align-items:center;
+    padding:28px 16px 70px;
+  }
+  [data-theme="light"] body{
+    background-image:
+      radial-gradient(880px 480px at 88% -12%, rgba(109,106,247,.12), transparent 62%),
+      radial-gradient(720px 420px at 6% -4%, rgba(34,211,238,.08), transparent 60%);
+  }
+  .page{width:100%;max-width:960px;}
+
+  .app-header{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:26px;flex-wrap:wrap;}
+  .brand{display:flex;align-items:center;gap:14px;min-width:0;}
+  .brand-logo{
+    width:46px;height:46px;flex-shrink:0;border-radius:14px;display:grid;place-items:center;
+    background:linear-gradient(145deg, rgba(109,106,247,.22), rgba(34,211,238,.12));
+    border:1px solid var(--line-2);
+    box-shadow:0 10px 30px -14px rgba(109,106,247,.9), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .brand-logo svg{width:24px;height:24px;display:block;}
+  .brand-meta h1{
+    font-size:20px;font-weight:700;margin:0;letter-spacing:-.2px;
+    background:linear-gradient(90deg,#C7C5FF,#8FE7F7);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  [data-theme="light"] .brand-meta h1{background:linear-gradient(90deg,var(--accent),var(--accent-2));
+    -webkit-background-clip:text;background-clip:text;color:transparent;}
+  .brand-meta p{margin:4px 0 0;font-size:12.5px;color:var(--muted);}
+  .header-actions{display:flex;gap:8px;}
+  .icon-btn{
+    width:40px;height:40px;border-radius:12px;
+    background:var(--surface);border:1px solid var(--line);
+    color:var(--muted);cursor:pointer;display:grid;place-items:center;
+    transition:color .18s, background .18s, border-color .18s, transform .1s;
+  }
+  .icon-btn:hover{color:var(--text);border-color:var(--line-2);background:var(--surface-2);}
+  .icon-btn:active{transform:scale(.95);}
+  .icon-btn svg{width:18px;height:18px;}
+  .icon-btn.on{color:var(--accent-2);border-color:rgba(34,211,238,.4);}
+  .icon-btn:disabled{opacity:.35;cursor:not-allowed;}
+
+  .tabs{display:flex;gap:6px;padding:6px;background:var(--surface);border:1px solid var(--line);border-radius:16px;margin-bottom:20px;}
+  .tab-btn{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:9px;
+    padding:13px 12px;border-radius:11px;background:transparent;
+    border:1px solid transparent;color:var(--muted);
+    font-family:inherit;font-size:14.5px;font-weight:500;cursor:pointer;
+    transition:color .18s, background .18s, box-shadow .18s;
+  }
+  .tab-btn svg{width:18px;height:18px;flex-shrink:0;}
+  .tab-btn:hover{color:var(--text);}
+  .tab-btn.active{
+    color:#fff;
+    background:linear-gradient(180deg, rgba(109,106,247,.22), rgba(34,211,238,.07));
+    box-shadow:inset 0 0 0 1px rgba(109,106,247,.45), 0 10px 26px -18px rgba(109,106,247,1);
+  }
+  [data-theme="light"] .tab-btn.active{color:var(--text);}
+
+  .panel{
+    width:100%;background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--r-lg);padding:26px;display:none;box-shadow:var(--shadow-card);
+  }
+  .panel.active{display:block;animation:panelIn .26s cubic-bezier(.22,.9,.3,1) forwards;}
+  @keyframes panelIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  h2.section-title{
+    font-size:16.5px;font-weight:600;margin:0 0 20px;color:var(--text);
+    display:flex;align-items:center;gap:10px;
+  }
+  h2.section-title::before{
+    content:"";width:4px;height:17px;border-radius:99px;
+    background:linear-gradient(180deg,var(--accent),var(--accent-2));flex-shrink:0;
+  }
+
+  .samples{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+  .sample-chip{
+    padding:7px 13px;border-radius:99px;font-size:12px;font-weight:500;
+    background:var(--surface-2);color:var(--muted);border:1px solid var(--line);
+    cursor:pointer;font-family:inherit;transition:all .16s;
+  }
+  .sample-chip:hover{color:var(--text);border-color:var(--line-2);background:var(--surface-3);}
+  .sample-chip:active{transform:scale(.97);}
+
+  label{font-size:12.5px;color:var(--muted);display:block;margin-bottom:8px;font-weight:500;}
+  textarea#text-input{
+    width:100%;min-height:170px;resize:vertical;
+    background:var(--surface-2);color:var(--text);
+    border:1px solid var(--line);border-radius:var(--r-md);
+    padding:15px 16px;font-size:14px;line-height:1.9;font-family:inherit;
+    transition:border-color .18s, box-shadow .18s;
+  }
+  textarea#text-input::placeholder{color:var(--muted-2);}
+  textarea#text-input:focus{outline:none;border-color:rgba(109,106,247,.6);box-shadow:0 0 0 4px rgba(109,106,247,.12);}
+
+  .counters{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px;margin:14px 0 20px;}
+  .counter{
+    background:var(--surface-2);border:1px solid var(--line);
+    border-radius:var(--r-sm);padding:10px 13px;
+    display:flex;flex-direction:column;gap:5px;min-width:0;
+  }
+  .counter-label{font-size:10.5px;color:var(--muted-2);}
+  .counter b{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .counter.savings b{color:var(--success);}
+
+  details.advanced{
+    background:var(--surface-2);border:1px solid var(--line);
+    border-radius:var(--r-md);padding:4px 16px 8px;margin-bottom:20px;
+  }
+  details.advanced[open]{padding-bottom:16px;}
+  details.advanced summary{
+    cursor:pointer;font-size:13px;font-weight:500;color:var(--muted);
+    padding:13px 0;list-style:none;display:flex;align-items:center;gap:9px;transition:color .18s;
+  }
+  details.advanced summary::-webkit-details-marker{display:none;}
+  details.advanced summary::before{
+    content:"";width:7px;height:7px;
+    border-right:1.8px solid currentColor;border-bottom:1.8px solid currentColor;
+    transform:rotate(-45deg);transition:transform .2s;flex-shrink:0;margin-inline-start:2px;
+  }
+  details.advanced[open] summary::before{transform:rotate(45deg);}
+  details.advanced summary:hover{color:var(--text);}
+
+  .adv-row{display:flex;align-items:center;gap:12px;margin:14px 0;flex-wrap:wrap;}
+  .adv-row > label:first-child{min-width:112px;margin:0;color:var(--text);font-size:12.5px;font-weight:500;}
+  .adv-row input[type=range]{
+    -webkit-appearance:none;appearance:none;flex:1;min-width:120px;height:5px;
+    border-radius:99px;background:var(--surface-3);outline:none;cursor:pointer;
+  }
+  .adv-row input[type=range]:disabled{opacity:.32;cursor:not-allowed;}
+  .adv-row input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+    background:#fff;border:3px solid var(--accent);cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.6);
+  }
+  .adv-row input[type=range]::-moz-range-thumb{
+    width:16px;height:16px;border-radius:50%;background:#fff;border:3px solid var(--accent);cursor:pointer;
+  }
+  .adv-row input[type=checkbox]{width:17px;height:17px;accent-color:var(--accent);cursor:pointer;flex-shrink:0;border-radius:5px;}
+  .adv-row .val{font-size:11.5px;color:var(--muted);min-width:74px;text-align:left;font-variant-numeric:tabular-nums;}
+  .adv-row select{
+    flex:1;min-width:170px;padding:11px 14px;padding-left:40px;
+    border-radius:var(--r-sm);background-color:var(--surface);color:var(--text);
+    border:1px solid var(--line);font-family:inherit;font-size:13px;
+    cursor:pointer;appearance:none;-webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238B92A6' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:left 13px center;background-size:15px;
+  }
+  .adv-row select:focus{outline:none;border-color:rgba(109,106,247,.6);}
+  .adv-row select option{background:var(--surface);color:var(--text);}
+  .adv-label{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--text);cursor:pointer;margin:0;flex:1;font-weight:400;line-height:1.7;}
+
+  .pw-input{
+    flex:1;min-width:170px;padding:11px 14px;border-radius:var(--r-sm);
+    background:var(--surface);color:var(--text);border:1px solid var(--line);
+    font-family:inherit;font-size:13px;transition:border-color .18s;
+  }
+  .pw-input:focus{outline:none;border-color:rgba(109,106,247,.6);}
+
+  .hint{font-size:12px;color:var(--muted);margin:12px 0 0;line-height:2;}
+
+  .btn{
+    border:none;border-radius:var(--r-sm);padding:12px 20px;
+    font-size:13.5px;font-weight:500;cursor:pointer;color:#fff;
+    font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    transition:filter .16s, transform .1s, background .16s, border-color .16s;white-space:nowrap;
+  }
+  .btn svg{width:16px;height:16px;flex-shrink:0;}
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--grad-accent);box-shadow:0 12px 30px -14px rgba(109,106,247,.95), inset 0 1px 0 rgba(255,255,255,.18);}
+  .btn-primary:hover{filter:brightness(1.12);}
+  .btn-secondary{background:var(--surface-2);color:var(--text);border:1px solid var(--line-2);}
+  .btn-secondary:hover{background:var(--surface-3);border-color:rgba(255,255,255,.22);}
+  [data-theme="light"] .btn-secondary:hover{border-color:rgba(0,0,0,.22);}
+  .btn:disabled{opacity:.38;cursor:not-allowed;filter:none;transform:none;}
+  .btn-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;}
+  .btn-row:empty{display:none;}
+
+  .canvas-wrap{
+    margin-top:20px;border-radius:var(--r-md);overflow:auto;background:#000;
+    border:1px solid var(--line);display:flex;justify-content:center;padding:12px;max-height:70vh;
+  }
+  canvas{display:block;max-width:100%;}
+  #decode-canvas{cursor:crosshair;touch-action:none;}
+  #loupe{
+    position:fixed;width:132px;height:132px;border-radius:50%;
+    border:2px solid var(--accent-2);pointer-events:none;z-index:50;display:none;
+    box-shadow:0 10px 30px rgba(0,0,0,.75), 0 0 0 4px rgba(34,211,238,.12);background:#000;
+  }
+
+  .status-box{
+    display:none;margin-top:16px;padding:13px 16px;border-radius:var(--r-sm);
+    font-size:12.5px;line-height:2;border:1px solid transparent;
+    border-inline-start-width:3px;border-inline-start-style:solid;
+  }
+  .status-box.show{display:block;animation:statusIn .22s ease forwards;}
+  @keyframes statusIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+  .status-box.info{background:rgba(34,211,238,.07);color:#8FE7F7;border-color:rgba(34,211,238,.16);border-inline-start-color:var(--accent-2);}
+  .status-box.success{background:rgba(16,185,129,.07);color:#74E8BC;border-color:rgba(16,185,129,.18);border-inline-start-color:var(--success);}
+  .status-box.error{background:rgba(240,68,68,.07);color:#FBA9A9;border-color:rgba(240,68,68,.2);border-inline-start-color:var(--danger);}
+  [data-theme="light"] .status-box.info{color:#0891B2;}
+  [data-theme="light"] .status-box.success{color:#047857;}
+  [data-theme="light"] .status-box.error{color:#B91C1C;}
+
+  .progress-bar-bg{width:100%;height:6px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-top:16px;border:1px solid var(--line);}
+  .progress-bar-fill{height:100%;width:0%;border-radius:99px;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width .25s ease;}
+
+  .video-wrap{position:relative;width:100%;max-width:520px;}
+  video#camera-video{width:100%;display:block;border-radius:var(--r-md);background:#000;border:1px solid var(--line);}
+  #scan-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;}
+  #decode-source-wrap{display:flex;flex-direction:column;align-items:center;gap:14px;}
+  #decode-source-wrap .btn-row{margin-top:0;justify-content:center;}
+  textarea#result-text{
+    width:100%;min-height:150px;margin-top:16px;background:var(--surface-2);color:var(--text);
+    border:1px solid var(--line);border-radius:var(--r-md);padding:15px 16px;
+    font-size:13.5px;line-height:1.95;font-family:inherit;display:none;resize:vertical;
+  }
+  textarea#result-text:focus{outline:none;border-color:rgba(109,106,247,.5);}
+  .corner-instructions{
+    background:rgba(109,106,247,.07);border:1px solid rgba(109,106,247,.28);
+    border-radius:var(--r-sm);padding:13px 16px;font-size:12.5px;
+    margin-top:16px;line-height:2;color:#C9C8FF;
+  }
+  [data-theme="light"] .corner-instructions{color:#4F46E5;}
+
+  .drop-zone{
+    margin-top:16px;padding:14px;border-radius:var(--r-md);
+    border:1.5px dashed var(--line-2);background:var(--surface-2);
+    text-align:center;font-size:12px;color:var(--muted);
+    transition:all .18s;
+  }
+  .drop-zone.over{border-color:var(--accent-2);background:rgba(34,211,238,.06);color:var(--accent-2);}
+  .drop-zone kbd{
+    background:var(--surface-3);border:1px solid var(--line);
+    border-radius:4px;padding:1px 6px;font-family:monospace;font-size:11px;
+  }
+
+  .history{margin-top:22px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:22px;box-shadow:var(--shadow-card);}
+  .history-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;gap:10px;flex-wrap:wrap;}
+  .history-head h2{font-size:15px;font-weight:600;margin:0;color:var(--text);display:flex;align-items:center;gap:10px;}
+  .history-head h2::before{content:"";width:4px;height:16px;border-radius:99px;background:linear-gradient(180deg,var(--accent),var(--accent-2));}
+  .history-empty{font-size:12.5px;color:var(--muted-2);text-align:center;padding:20px 0;}
+  .history-list{display:flex;flex-direction:column;gap:8px;max-height:340px;overflow-y:auto;padding-inline-end:4px;}
+  .history-item{
+    display:flex;align-items:center;gap:12px;padding:11px 14px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);
+    transition:border-color .18s, background .18s;
+  }
+  .history-item:hover{border-color:var(--line-2);background:var(--surface-3);}
+  .history-icon{
+    width:32px;height:32px;border-radius:9px;flex-shrink:0;display:grid;place-items:center;
+    background:rgba(109,106,247,.13);color:#A9A7FF;
+  }
+  .history-icon svg{width:15px;height:15px;}
+  .history-body{flex:1;min-width:0;}
+  .history-text{
+    font-size:12.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    margin-bottom:3px;font-weight:500;
+  }
+  .history-meta{font-size:10.5px;color:var(--muted-2);display:flex;gap:10px;flex-wrap:wrap;}
+  .history-actions{display:flex;gap:6px;flex-shrink:0;}
+  .mini-btn{
+    width:30px;height:30px;border-radius:8px;background:transparent;border:1px solid var(--line);
+    color:var(--muted);cursor:pointer;display:grid;place-items:center;transition:all .16s;
+  }
+  .mini-btn:hover{color:var(--text);border-color:var(--line-2);background:var(--surface);}
+  .mini-btn svg{width:14px;height:14px;}
+
+  #toast-container{
+    position:fixed;bottom:26px;left:50%;transform:translateX(-50%);
+    display:flex;flex-direction:column;gap:9px;z-index:999;width:min(92vw,420px);
+  }
+  .toast{
+    background:var(--surface-3);border:1px solid var(--line-2);color:var(--text);
+    padding:13px 17px;border-radius:var(--r-sm);font-size:12.5px;line-height:1.8;
+    box-shadow:0 18px 40px -18px rgba(0,0,0,.95);
+    animation:toastIn .26s cubic-bezier(.22,.9,.3,1);
+  }
+  .toast.success{border-color:rgba(16,185,129,.5);}
+  .toast.error{border-color:rgba(240,68,68,.5);}
+  @keyframes toastIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+  .site-footer{margin-top:26px;text-align:center;font-size:11.5px;color:var(--muted-2);line-height:2;}
+  .site-footer strong{color:var(--muted);font-weight:600;}
+
+  ::selection{background:var(--accent);color:#fff;}
+
+  @media (max-width:640px){
+    body{padding:20px 12px 60px;}
+    .panel{padding:20px 16px;border-radius:16px;}
+    .history{padding:18px 16px;}
+    .brand-meta p{display:none;}
+    .tab-btn{font-size:13.5px;padding:12px 8px;}
+    .adv-row > label:first-child{min-width:100%;}
+  }
+  @media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <header class="app-header">
+    <div class="brand">
+      <span class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="url(#brandGrad)" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <defs>
+            <linearGradient id="brandGrad" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0" stop-color="#A9A7FF"/>
+              <stop offset="1" stop-color="#67E8F9"/>
+            </linearGradient>
+          </defs>
+          <path d="M12 2.5 3.5 7.3v9.4L12 21.5l8.5-4.8V7.3z"/>
+          <path d="M12 21.5v-9.4"/>
+          <path d="m3.5 7.3 8.5 4.8 8.5-4.8"/>
+        </svg>
+      </span>
+      <div class="brand-meta">
+        <h1>ZetCode</h1>
+        <p>زت‌کد — کدگذاری نوری متن</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <button class="icon-btn" id="pwa-install-btn" title="نصب برنامه" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4.5 20.5h15"/>
+        </svg>
+      </button>
+      <button class="icon-btn" id="theme-toggle-btn" title="تغییر تم">
+        <svg id="theme-icon-dark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>
+        </svg>
+        <svg id="theme-icon-light" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+          <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab-btn active" id="tab-encode-btn" data-tab="encode" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2.5 3.5 7.3v9.4L12 21.5l8.5-4.8V7.3z"/>
+        <path d="M12 21.5v-9.4"/>
+        <path d="m3.5 7.3 8.5 4.8 8.5-4.8"/>
+      </svg>
+      <span>بساز</span>
+    </button>
+    <button class="tab-btn" id="tab-decode-btn" data-tab="decode" role="tab">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 7.5V5.5A2.5 2.5 0 0 1 5.5 3h2"/>
+        <path d="M16.5 3h2A2.5 2.5 0 0 1 21 5.5v2"/>
+        <path d="M21 16.5v2a2.5 2.5 0 0 1-2.5 2.5h-2"/>
+        <path d="M7.5 21h-2A2.5 2.5 0 0 1 3 18.5v-2"/>
+        <path d="M3.5 12h17"/>
+      </svg>
+      <span>بخوان</span>
+    </button>
+  </nav>
+
+  <!-- ENCODE -->
+  <section class="panel active" id="encode-panel">
+    <h2 class="section-title">متن خود را وارد کنید</h2>
+
+    <div class="samples">
+      <button class="sample-chip" data-sample="سلام، این یک پیام آزمایشی از ZetCode است.">متن کوتاه</button>
+      <button class="sample-chip" data-sample='{"name":"ZetCode","version":4,"features":["compress","encrypt","rs"]}'>JSON</button>
+      <button class="sample-chip" data-sample="Hello World! This is ZetCode — a new way to encode text into colored hexagonal codes.">English</button>
+      <button class="sample-chip" data-sample="https://example.com/some/long/url?with=params&and=more">URL</button>
+    </div>
+
+    <label for="text-input">متن</label>
+    <textarea id="text-input" placeholder="متن خود را اینجا بنویسید یا بچسبانید..."></textarea>
+
+    <div class="counters">
+      <div class="counter"><span class="counter-label">کاراکتر</span><b id="char-count">۰</b></div>
+      <div class="counter"><span class="counter-label">حجم UTF-8</span><b id="byte-count">۰ بایت</b></div>
+      <div class="counter"><span class="counter-label">سلول‌ها</span><b id="cell-estimate">—</b></div>
+      <div class="counter" id="savings-counter" style="display:none;"><span class="counter-label">صرفه‌جویی</span><b id="savings-value">—</b></div>
+    </div>
+
+    <details class="advanced">
+      <summary>تنظیمات پیشرفته</summary>
+
+      <div class="adv-row">
+        <label for="auto-min">کیفیت خودکار</label>
+        <label class="adv-label">
+          <input type="checkbox" id="auto-min" checked>
+          <span>حجم مینیمال — کوچک‌ترین اندازه‌ی سلول که قابل اسکن تأیید شود</span>
+        </label>
+      </div>
+
+      <div class="adv-row">
+        <label for="cell-size">اندازه سلول دستی</label>
+        <input type="range" id="cell-size" min="2" max="20" value="8" step="1" disabled>
+        <span class="val" id="cell-size-val">— خودکار —</span>
+      </div>
+
+      <div class="adv-row">
+        <label for="density-select">حالت چگالی</label>
+        <select id="density-select">
+          <option value="auto">خودکار (توصیه‌شده)</option>
+          <option value="12">استاندارد — ۱۲ بیت/سلول</option>
+          <option value="18">فشرده — ۱۸ بیت/سلول</option>
+        </select>
+      </div>
+
+      <div class="adv-row">
+        <label for="ec-select">تصحیح خطا</label>
+        <select id="ec-select">
+          <option value="0">خاموش — کمترین حجم</option>
+          <option value="1">کم — تحمل تا ۷٪ خرابی</option>
+          <option value="2" selected>متوسط — تحمل تا ۱۶٪ خرابی</option>
+          <option value="3">زیاد — تحمل تا ۳۰٪ خرابی</option>
+        </select>
+      </div>
+
+      <div class="adv-row">
+        <label for="compress-toggle">فشرده‌سازی</label>
+        <label class="adv-label">
+          <input type="checkbox" id="compress-toggle">
+          <span>فشرده‌سازی gzip — کاهش حجم تا ۷۰٪ برای متن‌های تکراری</span>
+        </label>
+      </div>
+
+      <div class="adv-row">
+        <label for="encrypt-toggle">رمزنگاری</label>
+        <label class="adv-label">
+          <input type="checkbox" id="encrypt-toggle">
+          <span>رمزنگاری AES-GCM — محافظت از محتوا با رمز عبور</span>
+        </label>
+      </div>
+
+      <div class="adv-row" id="password-row" style="display:none;">
+        <label for="password-input">رمز عبور</label>
+        <input type="password" id="password-input" class="pw-input" placeholder="رمز عبور را وارد کنید..." autocomplete="off">
+      </div>
+    </details>
+
+    <div class="btn-row">
+      <button class="btn btn-primary" id="render-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3 1.9 4.6L18.5 9.5l-4.6 1.9L12 16l-1.9-4.6L5.5 9.5l4.6-1.9z"/>
+          <path d="m18.5 15.5.8 1.9 1.9.8-1.9.8-.8 1.9-.8-1.9-1.9-.8 1.9-.8z"/>
+        </svg>
+        رندر کد
+      </button>
+    </div>
+
+    <div class="status-box" id="encode-status"></div>
+
+    <div class="canvas-wrap" id="encode-canvas-wrap" style="display:none;">
+      <canvas id="encode-canvas"></canvas>
+    </div>
+
+    <div class="btn-row" id="encode-actions" style="display:none;">
+      <button class="btn btn-secondary" id="download-png-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4.5 20.5h15"/>
+        </svg>
+        دانلود PNG
+      </button>
+      <button class="btn btn-secondary" id="copy-image-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="2.5"/>
+          <path d="M5.5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5v1"/>
+        </svg>
+        کپی تصویر
+      </button>
+      <button class="btn btn-secondary" id="share-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+          <path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/>
+        </svg>
+        اشتراک‌گذاری
+      </button>
+      <button class="btn btn-secondary" id="print-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.5 9V3h11v6"/>
+          <rect x="3" y="9" width="18" height="8" rx="2.5"/>
+          <path d="M6.5 14.5h11V21h-11z"/>
+        </svg>
+        چاپ
+      </button>
+    </div>
+  </section>
+
+  <!-- DECODE -->
+  <section class="panel" id="decode-panel">
+    <h2 class="section-title">تصویر کد را وارد کنید</h2>
+
+    <div id="decode-source-wrap">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="activate-camera-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m22 8.5-5.5 3.5L22 15.5z"/>
+            <rect x="2" y="6" width="14.5" height="12" rx="2.5"/>
+          </svg>
+          اسکن با دوربین
+        </button>
+        <button class="btn btn-secondary" id="upload-image-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2.5"/>
+            <circle cx="8.5" cy="8.5" r="1.6"/>
+            <path d="m21 15.5-4.5-4.5L5.5 21"/>
+          </svg>
+          آپلود عکس
+        </button>
+        <input type="file" id="file-input" accept="image/*" style="display:none;">
+      </div>
+
+      <div class="video-wrap" id="video-wrap" style="display:none;">
+        <video id="camera-video" autoplay playsinline muted></video>
+        <canvas id="scan-overlay"></canvas>
+      </div>
+
+      <div class="btn-row" id="camera-controls" style="display:none;margin-top:0;">
+        <button class="icon-btn" id="torch-btn" title="چراغ قوه" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 2h6l-1 6h3l-9 14 1-9H6z"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="zoom-in-btn" title="زوم +" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M11 8v6M8 11h6"/>
+          </svg>
+        </button>
+        <button class="icon-btn" id="zoom-out-btn" title="زوم −" style="display:none;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/><path d="M8 11h6"/>
+          </svg>
+        </button>
+      </div>
+
+      <button class="btn btn-secondary" id="stop-scan-btn" style="display:none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="6.5" y="6.5" width="11" height="11" rx="2.5"/>
+        </svg>
+        توقف اسکن
+      </button>
+
+      <div class="drop-zone" id="drop-zone">
+        تصویر را بکشید و رها کنید، یا از کلیپ‌بورد بچسبانید — <kbd>Ctrl</kbd>+<kbd>V</kbd>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="decode-canvas-wrap" style="display:none;">
+      <canvas id="decode-canvas"></canvas>
+    </div>
+
+    <div class="corner-instructions" id="corner-instructions" style="display:none;"></div>
+
+    <div class="btn-row" id="decode-controls" style="display:none;">
+      <button class="btn btn-secondary" id="manual-mode-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 11.5V6.5a2 2 0 0 0-4 0v5"/>
+          <path d="M14 10.5V4.5a2 2 0 0 0-4 0v6"/>
+          <path d="M10 11V6.5a2 2 0 0 0-4 0V15"/>
+          <path d="M18 8.5a2 2 0 1 1 4 0v6a7.5 7.5 0 0 1-7.5 7.5h-2A7.5 7.5 0 0 1 5 14.5v-1a2 2 0 1 1 4 0"/>
+        </svg>
+        انتخاب دستی گوشه‌ها
+      </button>
+      <button class="btn btn-secondary" id="undo-point-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 7.5v5.5h5.5"/>
+          <path d="M3.2 13a9 9 0 1 0 2.6-7.2L3 8.5"/>
+        </svg>
+        پس‌گرفتن آخرین نقطه
+      </button>
+      <button class="btn btn-secondary" id="reset-calibration-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 12a9 9 0 0 1 15.3-6.4L21 8.5"/>
+          <path d="M21 3.5v5h-5"/>
+          <path d="M21 12a9 9 0 0 1-15.3 6.4L3 15.5"/>
+          <path d="M3 20.5v-5h5"/>
+        </svg>
+        شروع دوباره
+      </button>
+    </div>
+
+    <div class="progress-bar-bg" id="decode-progress-wrap" style="display:none;">
+      <div class="progress-bar-fill" id="decode-progress-fill"></div>
+    </div>
+    <div class="hint" id="decode-progress-label" style="display:none;"></div>
+
+    <div class="status-box" id="decode-status"></div>
+
+    <textarea id="result-text" readonly></textarea>
+
+    <div class="btn-row" id="result-actions" style="display:none;">
+      <button class="btn btn-secondary" id="copy-text-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="9" width="12" height="12" rx="2.5"/>
+          <path d="M5.5 15H4.5A2.5 2.5 0 0 1 2 12.5v-8A2.5 2.5 0 0 1 4.5 2h8A2.5 2.5 0 0 1 15 4.5v1"/>
+        </svg>
+        کپی متن
+      </button>
+      <button class="btn btn-secondary" id="download-text-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3v12"/><path d="m7 11 5 5 5-5"/><path d="M4.5 20.5h15"/>
+        </svg>
+        دانلود txt
+      </button>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section class="history" id="history-section">
+    <div class="history-head">
+      <h2>تاریخچه کدها</h2>
+      <button class="btn btn-secondary" id="clear-history-btn" style="padding:8px 14px;font-size:12px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 6h16M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 6l1 14a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-14"/>
+        </svg>
+        پاک کردن
+      </button>
+    </div>
+    <div id="history-empty" class="history-empty">هنوز کدی ساخته نشده است.</div>
+    <div class="history-list" id="history-list"></div>
+  </section>
+
+  <footer class="site-footer">
+    ZetCode &nbsp;·&nbsp; ساخته‌شده توسط <strong>محمدحسین شمسی</strong>
+  </footer>
+
+</div>
+
+<canvas id="loupe" width="132" height="132"></canvas>
+<div id="toast-container"></div>
+
+<script>
+'use strict';
+
+/* =========================================================================
+   ZetCode v4.0 — با Reed-Solomon، فشرده‌سازی، رمزنگاری، و بهینه‌سازی سرعت
+   ========================================================================= */
+
+/* ==PURE-START== */
+
+const META_BYTES = 12;
+const META_CELLS = 8;
+const VERSION_V3 = 3;
+const VERSION_V4 = 4;
+const MAX_PAYLOAD = 4 * 1024 * 1024;
+const COL_RATIO = 1.1547;
+const SQ3 = Math.sqrt(3);
+const DENSITY_STD = 12;
+const DENSITY_DENSE = 18;
+
+const FLAG_COMPRESS = 1;
+const FLAG_ENCRYPT = 2;
+
+const AUTO_MIN_CELL = 3;
+const AUTO_MAX_CELL = 12;
+const CANVAS_HARD_LIMIT = 16384;
+
+/* ---------- CRC32 ---------- */
+let _crcTable = null;
+function crc32(bytes){
+  if(!_crcTable){
+    _crcTable = new Uint32Array(256);
+    for(let n=0;n<256;n++){
+      let c = n;
+      for(let k=0;k<8;k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      _crcTable[n] = c >>> 0;
+    }
+  }
+  let crc = 0xFFFFFFFF;
+  for(let i=0;i<bytes.length;i++) crc = _crcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+
+/* ---------- Bit helpers ---------- */
+function bytesToBitArray(bytes){
+  const bits = new Uint8Array(bytes.length * 8);
+  for(let i=0;i<bytes.length;i++){
+    const b = bytes[i]; const o = i*8;
+    bits[o]   = (b >> 7) & 1; bits[o+1] = (b >> 6) & 1;
+    bits[o+2] = (b >> 5) & 1; bits[o+3] = (b >> 4) & 1;
+    bits[o+4] = (b >> 3) & 1; bits[o+5] = (b >> 2) & 1;
+    bits[o+6] = (b >> 1) & 1; bits[o+7] =  b       & 1;
+  }
+  return bits;
+}
+function packBits(bits, bpc, numCells){
+  const vals = new Uint32Array(numCells);
+  const total = bits.length;
+  for(let i=0;i<numCells;i++){
+    let v = 0; const base = i*bpc;
+    for(let k=0;k<bpc;k++){
+      const idx = base + k;
+      v = (v << 1) | (idx < total ? bits[idx] : 0);
+    }
+    vals[i] = v;
+  }
+  return vals;
+}
+function unpackBits(vals, bpc, numBytes){
+  const numBits = numBytes * 8;
+  const bytes = new Uint8Array(numBytes);
+  for(let i=0;i<vals.length;i++){
+    const v = vals[i]; const base = i*bpc;
+    if(base >= numBits) break;
+    for(let k=0;k<bpc;k++){
+      const idx = base + k;
+      if(idx >= numBits) return bytes;
+      if((v >> (bpc-1-k)) & 1) bytes[idx >> 3] |= (1 << (7 - (idx & 7)));
+    }
+  }
+  return bytes;
+}
+
+function writeU32LE(a,o,v){ a[o]=v&0xFF; a[o+1]=(v>>>8)&0xFF; a[o+2]=(v>>>16)&0xFF; a[o+3]=(v>>>24)&0xFF; }
+function readU32LE(a,o){ return (a[o] | (a[o+1]<<8) | (a[o+2]<<16) | (a[o+3]<<24)) >>> 0; }
+
+/* ---------- Metadata (V3 / V4) ---------- */
+function buildMeta(len, crc, density, flags, ecLevel){
+  const m = new Uint8Array(META_BYTES);
+  m[0]=0x43; m[1]=0x57;
+  if(ecLevel && ecLevel > 0){
+    // V4
+    m[2]=VERSION_V4;
+    m[3] = (density & 0x1F) | ((flags & 7) << 5);
+    m[4] = ecLevel & 3;
+    m[5] = len & 0xFF;
+    m[6] = (len >> 8) & 0xFF;
+    m[7] = (len >> 16) & 0xFF;
+    writeU32LE(m, 8, crc);
+  } else {
+    // V3
+    m[2]=VERSION_V3;
+    m[3] = (density & 0x1F) | ((flags & 7) << 5);
+    writeU32LE(m, 4, len);
+    writeU32LE(m, 8, crc);
+  }
+  return m;
+}
+function parseMeta(b){
+  if(b.length < META_BYTES) return {valid:false};
+  if(b[0]!==0x43 || b[1]!==0x57) return {valid:false};
+  const version = b[2];
+  const raw = b[3];
+  const density = raw & 0x1F;
+  const flags = (raw >> 5) & 7;
+  if(density !== DENSITY_STD && density !== DENSITY_DENSE) return {valid:false};
+  if(version === VERSION_V3){
+    const len = readU32LE(b,4);
+    if(len < 1 || len > MAX_PAYLOAD) return {valid:false};
+    return {valid:true, version:3, len, crc: readU32LE(b,8), density, flags, ecLevel:0};
+  }
+  if(version === VERSION_V4){
+    const ecLevel = b[4] & 3;
+    if(ecLevel < 1 || ecLevel > 3) return {valid:false};
+    const len = b[5] | (b[6] << 8) | (b[7] << 16);
+    if(len < 1 || len > MAX_PAYLOAD) return {valid:false};
+    return {valid:true, version:4, len, crc: readU32LE(b,8), density, flags, ecLevel};
+  }
+  return {valid:false};
+}
+
+/* ---------- RGB conversion ---------- */
+function valueToRGB(v, density){
+  if(density === 12){
+    return { r: Math.round((v >> 7) * 255/31),
+             g: Math.round(((v >> 3) & 15) * 255/15),
+             b: Math.round((v & 7) * 255/7) };
+  }
+  return { r: Math.round(((v >> 12) & 63) * 255/63),
+           g: Math.round(((v >> 6)  & 63) * 255/63),
+           b: Math.round(( v        & 63) * 255/63) };
+}
+function rgbToValue(r,g,b,density){
+  const cl = (x,hi) => x<0?0:(x>hi?hi:x);
+  if(density === 12){
+    const R = cl(Math.round(r/255*31), 31);
+    const G = cl(Math.round(g/255*15), 15);
+    const B = cl(Math.round(b/255*7),   7);
+    return (R << 7) | (G << 3) | B;
+  }
+  const R = cl(Math.round(r/255*63), 63);
+  const G = cl(Math.round(g/255*63), 63);
+  const B = cl(Math.round(b/255*63), 63);
+  return (R << 12) | (G << 6) | B;
+}
+
+/* ---------- Grid math ---------- */
+function colsForRows(R){ return Math.max(2, Math.ceil(R * COL_RATIO)); }
+function cellsForPayload(len, density){ return META_CELLS + Math.ceil(len * 8 / density); }
+function gridDims(cells){
+  for(let R=1;;R++){
+    const c = colsForRows(R);
+    if(c * R >= cells) return {cols:c, rows:R};
+  }
+}
+
+function cellCenter(i, cols, size){
+  const q = i % cols, r = (i - q) / cols;
+  return {x: size * 1.5 * q, y: size * SQ3 * (r + 0.5 * (q & 1))};
+}
+function gridBounds(cols, rows, size){
+  const minX = -size, maxX = size * (1.5*(cols-1) + 1);
+  const minY = -SQ3/2 * size;
+  const maxY = size * (SQ3 * ((rows-1) + (cols > 1 ? 0.5 : 0)) + SQ3/2);
+  return {minX, minY, maxX, maxY, width: maxX-minX, height: maxY-minY};
+}
+
+const FINDER_MOD = 1;
+const MARK_PAD = 5;
+function canonicalCorners(b){
+  const p = MARK_PAD, w = b.width, h = b.height;
+  return [{x:-p,y:-p},{x:w+p,y:-p},{x:w+p,y:h+p},{x:-p,y:h+p}];
+}
+function marginFor(size){ return Math.round((MARK_PAD + 3.5*FINDER_MOD + 1) * size); }
+function finderRects(cx, cy, m){
+  const h = 3.5*m;
+  return [[cx-h, cy-h, 7*m, 7*m, 255], [cx-2.5*m, cy-2.5*m, 5*m, 5*m, 0], [cx-1.5*m, cy-1.5*m, 3*m, 3*m, 255]];
+}
+
+/* ---------- Homography ---------- */
+function solveLinearSystem8(A,B){
+  const n=8;
+  const M = A.map((row,i)=>[...row,B[i]]);
+  for(let col=0; col<n; col++){
+    let maxRow=col;
+    for(let r=col+1;r<n;r++) if(Math.abs(M[r][col])>Math.abs(M[maxRow][col])) maxRow=r;
+    [M[col],M[maxRow]] = [M[maxRow],M[col]];
+    const pivot = M[col][col];
+    if(Math.abs(pivot) < 1e-9) throw new Error('نقاط نامعتبرند.');
+    for(let c=col;c<=n;c++) M[col][c] /= pivot;
+    for(let r=0;r<n;r++){
+      if(r===col) continue;
+      const f = M[r][col];
+      for(let c=col;c<=n;c++) M[r][c] -= f*M[col][c];
+    }
+  }
+  return M.map(row=>row[n]);
+}
+function computeHomography(srcPts, dstPts){
+  const A=[], B=[];
+  for(let i=0;i<4;i++){
+    const {x:sx,y:sy} = srcPts[i];
+    const {x:dx,y:dy} = dstPts[i];
+    A.push([sx,sy,1,0,0,0,-dx*sx,-dx*sy]); B.push(dx);
+    A.push([0,0,0,sx,sy,1,-dy*sx,-dy*sy]); B.push(dy);
+  }
+  const h = solveLinearSystem8(A,B);
+  return [h[0],h[1],h[2],h[3],h[4],h[5],h[6],h[7],1];
+}
+function applyHomography(H,x,y){
+  const W = H[6]*x + H[7]*y + H[8];
+  return {x:(H[0]*x + H[1]*y + H[2])/W, y:(H[3]*x + H[4]*y + H[5])/W};
+}
+
+/* ---------- Fast sampling (bilinear cross) ---------- */
+function sampleBilinear(d, w, h, x, y){
+  const x0 = x|0, y0 = y|0;
+  if(x0 < 0 || y0 < 0 || x0 >= w-1 || y0 >= h-1) return [0,0,0];
+  const x1 = x0+1, y1 = y0+1;
+  const fx = x - x0, fy = y - y0;
+  const i00 = (y0*w + x0)<<2, i10 = (y0*w + x1)<<2;
+  const i01 = (y1*w + x0)<<2, i11 = (y1*w + x1)<<2;
+  const w00 = (1-fx)*(1-fy), w10 = fx*(1-fy);
+  const w01 = (1-fx)*fy, w11 = fx*fy;
+  return [
+    d[i00]*w00 + d[i10]*w10 + d[i01]*w01 + d[i11]*w11,
+    d[i00+1]*w00 + d[i10+1]*w10 + d[i01+1]*w01 + d[i11+1]*w11,
+    d[i00+2]*w00 + d[i10+2]*w10 + d[i01+2]*w01 + d[i11+2]*w11
+  ];
+}
+function sampleFast(img, x, y, rad){
+  const w = img.width, h = img.height, d = img.data;
+  const r = Math.max(0.7, rad * 0.45);
+  const c = sampleBilinear(d, w, h, x, y);
+  const n = sampleBilinear(d, w, h, x, y-r);
+  const s = sampleBilinear(d, w, h, x, y+r);
+  const e = sampleBilinear(d, w, h, x+r, y);
+  const wl = sampleBilinear(d, w, h, x-r, y);
+  return {
+    r: (c[0]*3 + n[0] + s[0] + e[0] + wl[0]) / 7,
+    g: (c[1]*3 + n[1] + s[1] + e[1] + wl[1]) / 7,
+    b: (c[2]*3 + n[2] + s[2] + e[2] + wl[2]) / 7
+  };
+}
+function radiusFor(pxPerUnit){ return Math.max(1, Math.min(8, Math.round(pxPerUnit * 0.3))); }
+
+/* ================= Reed-Solomon over GF(256) ================= */
+
+const GF_EXP = new Uint8Array(512);
+const GF_LOG = new Uint8Array(256);
+(function initGF(){
+  let x = 1;
+  for(let i=0;i<255;i++){
+    GF_EXP[i] = x;
+    GF_LOG[x] = i;
+    x = (x << 1) ^ ((x & 0x80) ? 0x11D : 0);
+  }
+  for(let i=255;i<512;i++) GF_EXP[i] = GF_EXP[i-255];
+})();
+
+function gmul(a, b){ return (a === 0 || b === 0) ? 0 : GF_EXP[GF_LOG[a] + GF_LOG[b]]; }
+function ginv(a){ return GF_EXP[(255 - GF_LOG[a]) % 255]; }
+
+function rsGenPoly(nsym){
+  let g = [1];
+  for(let i=0;i<nsym;i++){
+    const next = new Array(g.length + 1).fill(0);
+    for(let j=0;j<g.length;j++){
+      next[j] ^= gmul(g[j], GF_EXP[i]);
+      next[j+1] ^= g[j];
+    }
+    g = next;
+  }
+  return g;
+}
+
+function rsEncode(msg, nsym){
+  const gen = rsGenPoly(nsym);
+  const parity = new Uint8Array(nsym);
+  for(let i=0;i<msg.length;i++){
+    const fb = msg[i] ^ parity[0];
+    parity.copyWithin(0, 1);
+    parity[nsym-1] = 0;
+    if(fb !== 0){
+      for(let j=0;j<nsym;j++) parity[j] ^= gmul(gen[j+1], fb);
+    }
+  }
+  const out = new Uint8Array(msg.length + nsym);
+  out.set(msg);
+  out.set(parity, msg.length);
+  return out;
+}
+
+function rsCalcSyndromes(msg, nsym){
+  const synd = new Uint8Array(nsym);
+  for(let i=0;i<nsym;i++){
+    let s = 0;
+    const ai = GF_EXP[i];
+    for(let j=0;j<msg.length;j++) s = gmul(s, ai) ^ msg[j];
+    synd[i] = s;
+  }
+  return synd;
+}
+
+function rsFindErrorLocator(synd, nsym){
+  let errLoc = [1];
+  let oldLoc = [1];
+  for(let i=0;i<nsym;i++){
+    let delta = synd[i];
+    for(let j=1;j<errLoc.length;j++){
+      delta ^= gmul(errLoc[j], synd[i-j]);
+    }
+    oldLoc.push(0);
+    if(delta !== 0){
+      if(oldLoc.length > errLoc.length){
+        const newLoc = oldLoc.map(v => gmul(v, delta));
+        const invDelta = ginv(delta);
+        oldLoc = errLoc.map(v => gmul(v, invDelta));
+        errLoc = newLoc;
+      }
+      const offset = errLoc.length - oldLoc.length;
+      for(let j=0;j<oldLoc.length;j++){
+        errLoc[offset + j] ^= gmul(oldLoc[j], delta);
+      }
+    }
+  }
+  return errLoc;
+}
+
+function rsDecode(received, nsym){
+  const n = received.length;
+  const msg = new Uint8Array(received);
+  const synd = rsCalcSyndromes(msg, nsym);
+  let allZero = true;
+  for(let i=0;i<nsym;i++) if(synd[i] !== 0){ allZero = false; break; }
+  if(allZero) return {ok: true, data: msg.slice(0, n - nsym), corrected: 0};
+
+  const errLoc = rsFindErrorLocator(synd, nsym);
+  const L = errLoc.length - 1;
+  if(L > nsym/2) return {ok: false};
+
+  // Chien search
+  const errPos = [];
+  for(let p=0;p<n;p++){
+    const xInv = GF_EXP[((p - (n-1)) % 255 + 255) % 255];
+    let y = 0, xp = 1;
+    for(let k=0;k<errLoc.length;k++){
+      y ^= gmul(errLoc[k], xp);
+      xp = gmul(xp, xInv);
+    }
+    if(y === 0) errPos.push(p);
+  }
+  if(errPos.length !== L) return {ok: false};
+
+  // Solve error magnitudes
+  const N = errPos.length;
+  const M = [];
+  for(let i=0;i<N;i++){
+    const row = new Array(N+1).fill(0);
+    for(let k=0;k<N;k++){
+      const X = GF_EXP[((n - 1 - errPos[k]) * i) % 255];
+      row[k] = X;
+    }
+    row[N] = synd[i];
+    M.push(row);
+  }
+  for(let col=0;col<N;col++){
+    let pivot = -1;
+    for(let r=col;r<N;r++) if(M[r][col] !== 0){ pivot = r; break; }
+    if(pivot === -1) return {ok: false};
+    [M[col], M[pivot]] = [M[pivot], M[col]];
+    const inv = ginv(M[col][col]);
+    for(let c=col;c<=N;c++) M[col][c] = gmul(M[col][c], inv);
+    for(let r=0;r<N;r++){
+      if(r === col) continue;
+      const f = M[r][col];
+      if(f === 0) continue;
+      for(let c=col;c<=N;c++) M[r][c] ^= gmul(f, M[col][c]);
+    }
+  }
+  for(let k=0;k<N;k++) msg[errPos[k]] ^= M[k][N];
+
+  // Verify
+  const check = rsCalcSyndromes(msg, nsym);
+  for(let i=0;i<nsym;i++) if(check[i] !== 0) return {ok: false};
+
+  return {ok: true, data: msg.slice(0, n - nsym), corrected: N};
+}
+
+const RS_NSYM = [0, 32, 64, 96];
+
+function computeEncodedLen(origLen, ecLevel){
+  if(ecLevel === 0 || origLen === 0) return origLen;
+  const nsym = RS_NSYM[ecLevel];
+  const maxData = 255 - nsym;
+  const numBlocks = Math.max(1, Math.ceil(origLen / maxData));
+  const dataPerBlock = Math.ceil(origLen / numBlocks);
+  return numBlocks * (dataPerBlock + nsym);
+}
+
+function rsEncodeBlocks(data, ecLevel){
+  if(ecLevel === 0) return data;
+  const nsym = RS_NSYM[ecLevel];
+  const maxData = 255 - nsym;
+  const origLen = data.length;
+  const numBlocks = Math.max(1, Math.ceil(origLen / maxData));
+  const dataPerBlock = Math.ceil(origLen / numBlocks);
+  const paddedLen = numBlocks * dataPerBlock;
+  const padded = new Uint8Array(paddedLen);
+  padded.set(data);
+  const out = new Uint8Array(paddedLen + numBlocks * nsym);
+  let off = 0;
+  for(let i=0;i<numBlocks;i++){
+    const block = padded.slice(i*dataPerBlock, (i+1)*dataPerBlock);
+    const enc = rsEncode(block, nsym);
+    out.set(enc, off);
+    off += enc.length;
+  }
+  return out;
+}
+
+function rsDecodeBlocks(encoded, ecLevel, origLen){
+  if(ecLevel === 0) return {ok: true, data: encoded.slice(0, origLen), corrected: 0};
+  const nsym = RS_NSYM[ecLevel];
+  const maxData = 255 - nsym;
+  const numBlocks = Math.max(1, Math.ceil(origLen / maxData));
+  const dataPerBlock = Math.ceil(origLen / numBlocks);
+  const blockLen = dataPerBlock + nsym;
+  if(encoded.length < numBlocks * blockLen) return {ok: false};
+  const out = new Uint8Array(origLen);
+  let off = 0, outOff = 0, totalCorr = 0;
+  for(let i=0;i<numBlocks;i++){
+    const block = encoded.slice(off, off + blockLen);
+    const dec = rsDecode(block, nsym);
+    if(!dec.ok) return {ok: false};
+    totalCorr += dec.corrected;
+    const copyLen = Math.min(dataPerBlock, origLen - outOff);
+    out.set(dec.data.slice(0, copyLen), outOff);
+    outOff += copyLen;
+    off += blockLen;
+  }
+  return {ok: true, data: out, corrected: totalCorr};
+}
+
+function cellsForEncoded(origLen, ecLevel, density){
+  const encLen = computeEncodedLen(origLen, ecLevel);
+  return META_CELLS + Math.ceil(encLen * 8 / density);
+}
+
+/* ---------- Cell building ---------- */
+function buildCellValues(preRSBytes, encodedBytes, density, ecLevel, flags){
+  flags = flags || 0;
+  const crc = crc32(preRSBytes);
+  const metaBytes = buildMeta(preRSBytes.length, crc, density, flags, ecLevel);
+  const metaVals = packBits(bytesToBitArray(metaBytes), 12, META_CELLS);
+
+  const payloadBits = bytesToBitArray(encodedBytes);
+  const payloadCells = Math.ceil(payloadBits.length / density);
+  const payloadVals = packBits(payloadBits, density, payloadCells);
+
+  const totalCells = META_CELLS + payloadCells;
+  const dims = gridDims(totalCells);
+  return {metaVals, payloadVals, payloadCells, totalCells, cols:dims.cols, rows:dims.rows, density, crc, flags, ecLevel, payloadLen: preRSBytes.length};
+}
+
+/* ---------- Cell reading ---------- */
+function readCells(img, H, cols, b, from, to, rad, out, cal, density, outOffset){
+  outOffset = outOffset || 0;
+  for(let i=from;i<to;i++){
+    const c = cellCenter(i, cols, 1);
+    const p = applyHomography(H, c.x - b.minX, c.y - b.minY);
+    let s = sampleFast(img, p.x, p.y, rad);
+    if(cal) s = {r:(s.r-cal.lo[0])*cal.k[0], g:(s.g-cal.lo[1])*cal.k[1], b:(s.b-cal.lo[2])*cal.k[2]};
+    out[outOffset + (i - from)] = rgbToValue(s.r, s.g, s.b, density);
+  }
+}
+const _tick = () => new Promise(r => setTimeout(r, 0));
+
+function makeCal(img, H, b, rad){
+  const P = MARK_PAD;
+  const pts = [[-P,-P],[b.width+P,-P],[b.width+P,b.height+P],[-P,b.height+P]];
+  const hi = [0,0,0], lo = [0,0,0];
+  for(const [x,y] of pts){
+    const pw = applyHomography(H, x, y), pb = applyHomography(H, x + 2*FINDER_MOD, y);
+    const sw = sampleFast(img, pw.x, pw.y, rad), sb = sampleFast(img, pb.x, pb.y, rad);
+    hi[0] += sw.r/4; hi[1] += sw.g/4; hi[2] += sw.b/4;
+    lo[0] += sb.r/4; lo[1] += sb.g/4; lo[2] += sb.b/4;
+  }
+  const k = [0,1,2].map(i => (hi[i]-lo[i] >= 60 ? 255/(hi[i]-lo[i]) : null));
+  if(k.some(v => v === null)) return null;
+  return {lo, k};
+}
+
+/* ---------- Fast decode with direct R estimation ---------- */
+async function decodeFromCorners(img, corners, onProgress){
+  const dist = (a,b) => Math.hypot(a.x-b.x, a.y-b.y);
+  const dH = dist(corners[0], corners[1]);
+  const dV = dist(corners[0], corners[3]);
+
+  // تخمین اولیه
+  const approxCells = Math.max(16, Math.round(dH * dV / 400));
+  const sizeEst = Math.max(1, dH / (1.732 * Math.sqrt(approxCells) + 10.5));
+  const rowsEst = Math.max(1, Math.round(dV / (SQ3 * sizeEst + 1)));
+  const minR = Math.max(1, rowsEst - 8);
+  const maxR = Math.min(2000, rowsEst + 8);
+
+  let found = null;
+  const tried = new Set();
+
+  for(let phase = 0; phase < 2 && !found; phase++){
+    const startR = phase === 0 ? minR : 1;
+    const endR = phase === 0 ? maxR : Math.min(2000, img.height);
+
+    for(let R=startR; R<=endR && !found; R++){
+      if(tried.has(R)) continue;
+      tried.add(R);
+      const cols = colsForRows(R);
+      if(cols * R < META_CELLS) continue;
+      const b = gridBounds(cols, R, 1);
+      let H;
+      try { H = computeHomography(canonicalCorners(b), corners); } catch(e){ continue; }
+      const ppu = (dH / (b.width + 2*MARK_PAD) + dV / (b.height + 2*MARK_PAD)) / 2;
+      if(ppu < 0.5) continue;
+      const rad = radiusFor(ppu);
+
+      const metaVals = new Uint32Array(META_CELLS);
+      readCells(img, H, cols, b, 0, META_CELLS, rad, metaVals, null, 12, 0);
+      let meta = parseMeta(unpackBits(metaVals, 12, META_BYTES));
+      let cal = null;
+
+      if(meta.valid){
+        const targetCells = (meta.version === 4 && meta.ecLevel > 0)
+          ? cellsForEncoded(meta.len, meta.ecLevel, meta.density)
+          : cellsForPayload(meta.len, meta.density);
+        const dims = gridDims(targetCells);
+        if(dims.rows !== R || dims.cols !== cols) meta = {valid:false};
+      }
+      if(!meta.valid){
+        cal = makeCal(img, H, b, rad);
+        if(cal){
+          readCells(img, H, cols, b, 0, META_CELLS, rad, metaVals, cal, 12, 0);
+          meta = parseMeta(unpackBits(metaVals, 12, META_BYTES));
+          if(meta.valid){
+            const targetCells = (meta.version === 4 && meta.ecLevel > 0)
+              ? cellsForEncoded(meta.len, meta.ecLevel, meta.density)
+              : cellsForPayload(meta.len, meta.density);
+            const dims = gridDims(targetCells);
+            if(dims.rows !== R || dims.cols !== cols) meta = {valid:false};
+          }
+        }
+      }
+      if(meta.valid){ found = {R, cols, b, H, rad, meta, ppu, cal}; break; }
+    }
+  }
+  if(!found) return {ok:false, error:'ابعاد و داده‌ی کد شناسایی نشد.'};
+
+  const {cols, b, H, rad, meta, ppu} = found;
+  const encodedLen = (meta.version === 4 && meta.ecLevel > 0)
+    ? computeEncodedLen(meta.len, meta.ecLevel)
+    : meta.len;
+
+  const totalCells = cellsForPayload(encodedLen, meta.density);
+  const payloadCells = totalCells - META_CELLS;
+  const payloadVals = new Uint32Array(payloadCells);
+
+  const CHUNK = 4000;
+  for(let from=0; from<payloadCells; from+=CHUNK){
+    const to = Math.min(payloadCells, from + CHUNK);
+    readCells(img, H, cols, b, META_CELLS + from, META_CELLS + to, rad, payloadVals, found.cal, meta.density, from);
+    if(onProgress) onProgress(to, payloadCells);
+    await _tick();
+  }
+
+  const encodedBytes = unpackBits(payloadVals, meta.density, encodedLen);
+  let payload = encodedBytes;
+  let corrected = 0;
+  let rsFailed = false;
+
+  if(meta.version === 4 && meta.ecLevel > 0){
+    const rsRes = rsDecodeBlocks(encodedBytes, meta.ecLevel, meta.len);
+    if(rsRes.ok){
+      payload = rsRes.data;
+      corrected = rsRes.corrected;
+    } else {
+      rsFailed = true;
+      payload = encodedBytes.slice(0, meta.len);
+    }
+  }
+
+  return {ok:true, payload, crcOk: crc32(payload) === meta.crc, len: meta.len,
+          cells: totalCells, cols, rows: found.R, ppu, density: meta.density,
+          flags: meta.flags || 0, ecLevel: meta.ecLevel || 0,
+          corrected, rsFailed};
+}
+
+/* ---------- Finder detection (fast, downscaled) ---------- */
+function toGray(img){
+  const d = img.data, n = img.width * img.height, g = new Uint8Array(n);
+  for(let i=0, j=0; i<n; i++, j+=4) g[i] = (d[j]*77 + d[j+1]*150 + d[j+2]*29) >> 8;
+  return g;
+}
+function buildThreshold(gray, w, h){
+  const B = 8, bw = Math.ceil(w/B), bh = Math.ceil(h/B);
+  const mean = new Float32Array(bw*bh);
+  for(let by=0; by<bh; by++){
+    const y0 = by*B, y1 = Math.min(h, y0+B);
+    for(let bx=0; bx<bw; bx++){
+      const x0 = bx*B, x1 = Math.min(w, x0+B);
+      let s = 0;
+      for(let y=y0; y<y1; y++){ const o = y*w; for(let x=x0; x<x1; x++) s += gray[o+x]; }
+      mean[by*bw+bx] = s / ((y1-y0)*(x1-x0));
+    }
+  }
+  const k = Math.max(2, Math.round(Math.min(bw,bh)/12));
+  const I = new Float64Array((bw+1)*(bh+1));
+  for(let y=0; y<bh; y++){
+    let row = 0;
+    for(let x=0; x<bw; x++){ row += mean[y*bw+x]; I[(y+1)*(bw+1)+x+1] = I[y*(bw+1)+x+1] + row; }
+  }
+  const thr = new Float32Array(bw*bh);
+  for(let by=0; by<bh; by++){
+    const y0 = Math.max(0,by-k), y1 = Math.min(bh-1,by+k);
+    for(let bx=0; bx<bw; bx++){
+      const x0 = Math.max(0,bx-k), x1 = Math.min(bw-1,bx+k);
+      const sum = I[(y1+1)*(bw+1)+x1+1] - I[y0*(bw+1)+x1+1] - I[(y1+1)*(bw+1)+x0] + I[y0*(bw+1)+x0];
+      thr[by*bw+bx] = sum / ((x1-x0+1)*(y1-y0+1));
+    }
+  }
+  return {thr, bw};
+}
+function ratioModule(l){
+  const m = (l[0]+l[1]+l[2]+l[3]+l[4]) / 7;
+  if(m < 1.5) return 0;
+  const t = 0.75*m;
+  if(Math.abs(l[0]-m) > t || Math.abs(l[1]-m) > t || Math.abs(l[3]-m) > t || Math.abs(l[4]-m) > t) return 0;
+  if(Math.abs(l[2]-3*m) > 1.5*m) return 0;
+  return m;
+}
+function lineRuns(white, w, h, cx, cy, dx, dy, maxLen){
+  if(cx < 0 || cy < 0 || cx >= w || cy >= h || !white(cx,cy)) return null;
+  const at = t => { const x = cx+dx*t, y = cy+dy*t; return (x>=0 && y>=0 && x<w && y<h) ? white(x,y) : -1; };
+  let a = 0; while(a < maxLen && at(-(a+1)) === true) a++;
+  let b = 0; while(b < maxLen && at(b+1) === true) b++;
+  const p = -(a+1);
+  let l1 = 0; while(l1 < maxLen && at(p-l1) === false) l1++;
+  let l0 = 0; while(l0 < maxLen && at(p-l1-l0) === true) l0++;
+  const q = b+1;
+  let l3 = 0; while(l3 < maxLen && at(q+l3) === false) l3++;
+  let l4 = 0; while(l4 < maxLen && at(q+l3+l4) === true) l4++;
+  return {lens:[l0,l1,a+b+1,l3,l4], off:(b-a)/2};
+}
+function detectFindersCore(img){
+  const w = img.width, h = img.height;
+  const gray = toGray(img);
+  const {thr, bw} = buildThreshold(gray, w, h);
+  const white = (x,y) => gray[y*w+x] > thr[(y>>3)*bw + (x>>3)] + 12;
+  const step = Math.max(1, Math.min(4, Math.floor(h/1000)));
+  const clusters = [];
+  const lens = [0,0,0,0,0], starts = [0,0,0,0,0];
+
+  for(let y=0; y<h; y+=step){
+    let n = 0, cur = white(0,y), start = 0;
+    for(let x=1; x<=w; x++){
+      const c = x < w ? white(x,y) : !cur;
+      if(c === cur) continue;
+      lens[0]=lens[1]; lens[1]=lens[2]; lens[2]=lens[3]; lens[3]=lens[4]; lens[4]=x-start;
+      starts[2]=starts[3]; starts[3]=starts[4]; starts[4]=start;
+      n++;
+      if(cur && n >= 5 && ratioModule(lens)){
+        const m1 = ratioModule(lens);
+        const cx0 = starts[2] + lens[2]/2 - 0.5;
+        const maxLen = Math.ceil(m1*5);
+        const v = lineRuns(white, w, h, Math.round(cx0), y, 0, 1, maxLen);
+        const mv = v ? ratioModule(v.lens) : 0;
+        if(mv){
+          const cy = y + v.off;
+          const hh = lineRuns(white, w, h, Math.round(cx0), Math.round(cy), 1, 0, maxLen);
+          const mh = hh ? ratioModule(hh.lens) : 0;
+          if(mh && Math.abs(mv-mh) < 0.5*Math.max(mv,mh)){
+            const fx = Math.round(cx0) + hh.off, fy = cy, m = (mv+mh)/2;
+            const rx = Math.round(fx), ry = Math.round(fy);
+            const dg1 = lineRuns(white, w, h, rx, ry, 1, 1, maxLen);
+            const dg2 = lineRuns(white, w, h, rx, ry, 1, -1, maxLen);
+            if(dg1 && dg2 && ratioModule(dg1.lens) && ratioModule(dg2.lens)){
+              let hit = null;
+              for(const k of clusters){ if(Math.hypot(k.x-fx, k.y-fy) < Math.max(3, 1.5*k.m)){ hit = k; break; } }
+              if(hit){ hit.x = (hit.x*hit.count + fx)/(hit.count+1); hit.y = (hit.y*hit.count + fy)/(hit.count+1);
+                       hit.m = (hit.m*hit.count + m)/(hit.count+1); hit.count++; }
+              else clusters.push({x:fx, y:fy, m, count:1});
+            }
+          }
+        }
+      }
+      cur = c; start = x;
+    }
+  }
+  return clusters.filter(k => k.count >= 3).sort((a,b) => b.count - a.count).slice(0, 16);
+}
+let _downscaleCanvas = null;
+function detectFinders(img){
+  const maxSide = 1400;
+  const scale = Math.min(1, maxSide / Math.max(img.width, img.height));
+  if(scale >= 0.99) return detectFindersCore(img);
+
+  if(!_downscaleCanvas) _downscaleCanvas = document.createElement('canvas');
+  const srcC = document.createElement('canvas');
+  srcC.width = img.width; srcC.height = img.height;
+  srcC.getContext('2d').putImageData(img, 0, 0);
+
+  const dw = Math.round(img.width * scale);
+  const dh = Math.round(img.height * scale);
+  _downscaleCanvas.width = dw;
+  _downscaleCanvas.height = dh;
+  const dctx = _downscaleCanvas.getContext('2d', {willReadFrequently:true});
+  dctx.drawImage(srcC, 0, 0, dw, dh);
+  const small = dctx.getImageData(0, 0, dw, dh);
+
+  const smallFinders = detectFindersCore(small);
+  const invScale = 1 / scale;
+  return smallFinders.map(f => ({
+    x: f.x * invScale, y: f.y * invScale,
+    m: f.m * invScale, count: f.count
+  }));
+}
+
+function pickQuads(f){
+  const quads = [];
+  const n = f.length;
+  for(let i=0;i<n;i++) for(let j=i+1;j<n;j++) for(let k=j+1;k<n;k++) for(let l=k+1;l<n;l++){
+    const pts = [f[i], f[j], f[k], f[l]];
+    const ms = pts.map(p => p.m), mMax = Math.max(...ms), mMin = Math.min(...ms);
+    if(mMax / mMin > 2.2) continue;
+    const cx = (pts[0].x+pts[1].x+pts[2].x+pts[3].x)/4, cy = (pts[0].y+pts[1].y+pts[2].y+pts[3].y)/4;
+    const o = pts.slice().sort((p,q) => Math.atan2(p.y-cy, p.x-cx) - Math.atan2(q.y-cy, q.x-cx));
+    let pos = 0, neg = 0;
+    for(let t=0;t<4;t++){
+      const a = o[t], b = o[(t+1)%4], c = o[(t+2)%4];
+      const cr = (b.x-a.x)*(c.y-b.y) - (b.y-a.y)*(c.x-b.x);
+      if(cr > 0) pos++; else neg++;
+    }
+    if(pos && neg) continue;
+    const d1 = Math.hypot(o[0].x-o[2].x, o[0].y-o[2].y), d2 = Math.hypot(o[1].x-o[3].x, o[1].y-o[3].y);
+    const dErr = Math.hypot(o[0].x+o[2].x-o[1].x-o[3].x, o[0].y+o[2].y-o[1].y-o[3].y) / ((d1+d2)/2);
+    let minSide = Infinity;
+    for(let t=0;t<4;t++) minSide = Math.min(minSide, Math.hypot(o[t].x-o[(t+1)%4].x, o[t].y-o[(t+1)%4].y));
+    const mAvg = (ms[0]+ms[1]+ms[2]+ms[3])/4;
+    if(dErr > 0.45 || minSide < 12*mAvg) continue;
+    quads.push({order:o, score:dErr + (mMax/mMin - 1)*0.3});
+  }
+  return quads.sort((a,b) => a.score - b.score).slice(0, 12);
+}
+async function scanImage(img, onProgress){
+  const finders = detectFinders(img);
+  if(finders.length < 4) return {ok:false, finders, reason:'finders'};
+  const quads = pickQuads(finders);
+  if(!quads.length) return {ok:false, finders, reason:'quad'};
+  let best = null;
+  for(const q of quads){
+    const pts = q.order.map(p => ({x:p.x, y:p.y}));
+    for(let rot=0; rot<4; rot++){
+      const corners = [pts[rot%4], pts[(rot+1)%4], pts[(rot+2)%4], pts[(rot+3)%4]];
+      let res;
+      try{ res = await decodeFromCorners(img, corners, onProgress); }catch(e){ continue; }
+      if(!res.ok) continue;
+      if(res.crcOk) return {ok:true, res, finders, corners};
+      if(!best) best = {res, corners};
+    }
+  }
+  if(best) return {ok:true, res:best.res, finders, corners:best.corners};
+  return {ok:false, finders, reason:'decode'};
+}
+
+/* ==PURE-END== */
+
+/* ===================== TRANSFORMS: gzip + AES-GCM ===================== */
+
+const hasCompression = (typeof CompressionStream !== 'undefined') && (typeof DecompressionStream !== 'undefined');
+const hasCrypto = (typeof crypto !== 'undefined') && crypto.subtle && (typeof crypto.subtle.encrypt === 'function');
+
+async function gzipCompress(bytes){
+  if(!hasCompression) throw new Error('مرورگر از فشرده‌سازی پشتیبانی نمی‌کند.');
+  const cs = new CompressionStream('gzip');
+  const writer = cs.writable.getWriter();
+  writer.write(bytes); writer.close();
+  const reader = cs.readable.getReader();
+  const chunks = [];
+  while(true){
+    const {done, value} = await reader.read();
+    if(done) break;
+    chunks.push(value);
+  }
+  let total = 0; for(const c of chunks) total += c.length;
+  const out = new Uint8Array(total);
+  let off = 0; for(const c of chunks){ out.set(c, off); off += c.length; }
+  return out;
+}
+async function gzipDecompress(bytes){
+  if(!hasCompression) throw new Error('مرورگر از بازکردن فشرده‌سازی پشتیبانی نمی‌کند.');
+  const ds = new DecompressionStream('gzip');
+  const writer = ds.writable.getWriter();
+  writer.write(bytes); writer.close();
+  const reader = ds.readable.getReader();
+  const chunks = [];
+  while(true){
+    const {done, value} = await reader.read();
+    if(done) break;
+    chunks.push(value);
+  }
+  let total = 0; for(const c of chunks) total += c.length;
+  const out = new Uint8Array(total);
+  let off = 0; for(const c of chunks){ out.set(c, off); off += c.length; }
+  return out;
+}
+
+async function deriveAesKey(password, salt){
+  const enc = new TextEncoder();
+  const baseKey = await crypto.subtle.importKey('raw', enc.encode(password), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey(
+    {name:'PBKDF2', salt, iterations: 120000, hash: 'SHA-256'},
+    baseKey,
+    {name:'AES-GCM', length: 256},
+    false,
+    ['encrypt','decrypt']
+  );
+}
+async function encryptPayload(bytes, password){
+  if(!hasCrypto) throw new Error('مرورگر از رمزنگاری پشتیبانی نمی‌کند.');
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await deriveAesKey(password, salt);
+  const ct = await crypto.subtle.encrypt({name:'AES-GCM', iv}, key, bytes);
+  const ctBytes = new Uint8Array(ct);
+  const out = new Uint8Array(16 + 12 + ctBytes.length);
+  out.set(salt, 0);
+  out.set(iv, 16);
+  out.set(ctBytes, 28);
+  return out;
+}
+async function decryptPayload(bytes, password){
+  if(!hasCrypto) throw new Error('مرورگر از رمزگشایی پشتیبانی نمی‌کند.');
+  if(bytes.length < 28) throw new Error('داده‌ی رمزنگاری‌شده نامعتبر است.');
+  const salt = bytes.slice(0, 16);
+  const iv = bytes.slice(16, 28);
+  const ct = bytes.slice(28);
+  const key = await deriveAesKey(password, salt);
+  try {
+    const pt = await crypto.subtle.decrypt({name:'AES-GCM', iv}, key, ct);
+    return new Uint8Array(pt);
+  } catch(e){
+    throw new Error('رمز عبور نادرست است یا داده آسیب دیده.');
+  }
+}
+
+async function preparePayload(text, opts){
+  let bytes = new TextEncoder().encode(text);
+  let flags = 0;
+  if(opts.compress){
+    try {
+      const before = bytes.length;
+      const compressed = await gzipCompress(bytes);
+      if(compressed.length < before){
+        bytes = compressed;
+        flags |= FLAG_COMPRESS;
+      }
+    } catch(e){}
+  }
+  if(opts.password){
+    bytes = await encryptPayload(bytes, opts.password);
+    flags |= FLAG_ENCRYPT;
+  }
+  const ecLevel = opts.ecLevel || 0;
+  const preRSBytes = bytes;
+  const encodedBytes = rsEncodeBlocks(bytes, ecLevel);
+  return {preRSBytes, encodedBytes, flags, ecLevel};
+}
+
+async function recoverPayload(bytes, flags, password){
+  if(flags & FLAG_ENCRYPT){
+    if(!password) throw new Error('این کد رمزنگاری شده؛ رمز عبور را وارد کنید.');
+    bytes = await decryptPayload(bytes, password);
+  }
+  if(flags & FLAG_COMPRESS){
+    bytes = await gzipDecompress(bytes);
+  }
+  return bytes;
+}
+
+/* ===================== UI HELPERS ===================== */
+
+function toPersianDigits(str){
+  const fa = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+  return String(str).replace(/[0-9]/g, d => fa[+d]);
+}
+function showToast(message, type){
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = message;
+  container.appendChild(el);
+  setTimeout(() => el.remove(), 4200);
+}
+function setStatus(elId, message, type){
+  const el = document.getElementById(elId);
+  el.textContent = message;
+  el.className = 'status-box show' + (type ? ' ' + type : '');
+}
+function clearStatus(elId){
+  const el = document.getElementById(elId);
+  el.className = 'status-box';
+  el.textContent = '';
+}
+const nextFrame = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 0)));
+
+function getMaxCanvasArea(){
+  const ua = navigator.userAgent || '';
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua) || (window.innerWidth < 700 && 'ontouchstart' in window);
+  return isMobile ? 16777216 : 100000000;
+}
+
+function rgbStr(c){ return `rgb(${c.r},${c.g},${c.b})`; }
+
+/* ===================== THEME ===================== */
+
+function applyTheme(theme){
+  document.documentElement.setAttribute('data-theme', theme);
+  document.getElementById('theme-icon-dark').style.display = theme === 'light' ? 'none' : 'block';
+  document.getElementById('theme-icon-light').style.display = theme === 'light' ? 'block' : 'none';
+  try { localStorage.setItem('zetcode-theme', theme); } catch(e){}
+}
+function initTheme(){
+  let theme = 'dark';
+  try { theme = localStorage.getItem('zetcode-theme') || 'dark'; } catch(e){}
+  applyTheme(theme);
+}
+initTheme();
+document.getElementById('theme-toggle-btn').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') || 'dark';
+  applyTheme(cur === 'dark' ? 'light' : 'dark');
+});
+
+/* ===================== RENDER (Path2D batched) ===================== */
+
+async function renderAtSize(preRSBytes, encodedBytes, density, ecLevel, flags, size){
+  const cellData = buildCellValues(preRSBytes, encodedBytes, density, ecLevel, flags);
+  const {metaVals, payloadVals, totalCells, cols, rows, payloadCells} = cellData;
+
+  const b = gridBounds(cols, rows, size);
+  const margin = marginFor(size);
+  const W = Math.ceil(b.width + 2*margin);
+  const H = Math.ceil(b.height + 2*margin);
+
+  const canvas = document.getElementById('encode-canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0A0A0F';
+  ctx.fillRect(0, 0, W, H);
+
+  const hs = size * 0.96;
+  const ox = new Float32Array(6), oy = new Float32Array(6);
+  for(let k=0;k<6;k++){
+    ox[k] = hs*Math.cos(Math.PI/3*k);
+    oy[k] = hs*Math.sin(Math.PI/3*k);
+  }
+
+  const cache12 = new Array(4096);
+  const cache18 = density === 18 ? new Array(262144) : null;
+  const color12 = v => cache12[v] || (cache12[v] = rgbStr(valueToRGB(v, 12)));
+  const color18 = v => cache18[v] || (cache18[v] = rgbStr(valueToRGB(v, 18)));
+  const payloadColor = density === 12 ? color12 : color18;
+
+  const totalGrid = cols * rows;
+  const batches = new Map();
+  let drawn = 0;
+  const YIELD_EVERY = 100000;
+
+  for(let i=0;i<totalGrid;i++){
+    const c = cellCenter(i, cols, size);
+    const cx = margin + (c.x - b.minX);
+    const cy = margin + (c.y - b.minY);
+    let fill;
+    if(i < META_CELLS) fill = color12(metaVals[i]);
+    else if(i < totalCells) fill = payloadColor(payloadVals[i - META_CELLS]);
+    else fill = '#1c1c28';
+
+    let path = batches.get(fill);
+    if(!path){ path = new Path2D(); batches.set(fill, path); }
+    path.moveTo(cx+ox[0], cy+oy[0]);
+    for(let k=1;k<6;k++) path.lineTo(cx+ox[k], cy+oy[k]);
+    path.closePath();
+
+    drawn++;
+    if((drawn % YIELD_EVERY) === 0){
+      setStatus('encode-status', `آماده‌سازی سلول‌ها... ${toPersianDigits(Math.round(drawn/totalGrid*100))}٪`, 'info');
+      await nextFrame();
+    }
+  }
+
+  let painted = 0;
+  for(const [color, path] of batches){
+    ctx.fillStyle = color;
+    ctx.fill(path);
+    painted++;
+    if((painted % 500) === 0) await nextFrame();
+  }
+  batches.clear();
+
+  const pd = MARK_PAD * size;
+  const corners = [
+    {x: margin-pd, y: margin-pd},
+    {x: margin+b.width+pd, y: margin-pd},
+    {x: margin+b.width+pd, y: margin+b.height+pd},
+    {x: margin-pd, y: margin+b.height+pd}
+  ];
+  for(const {x:cx, y:cy} of corners){
+    for(const [x,y,ww,hh,g] of finderRects(cx, cy, FINDER_MOD*size)){
+      ctx.fillStyle = g ? '#fff' : '#000';
+      ctx.fillRect(x, y, ww, hh);
+    }
+  }
+
+  return {payloadLength: encodedBytes.length, preRSLength: preRSBytes.length,
+          cells: totalCells, cols, rows, W, H, size,
+          density, payloadCells, corners, flags, ecLevel};
+}
+
+function verifyRendered(info, preRSLen, density, flags, ecLevel){
+  const {W, H, cols, rows, size, corners} = info;
+  const canvas = document.getElementById('encode-canvas');
+  const ctx = canvas.getContext('2d', {willReadFrequently:true});
+  let imgData;
+  try { imgData = ctx.getImageData(0, 0, W, H); }
+  catch(e){ return {ok:false, reason:'getImageData: ' + e.message}; }
+  try {
+    const bUnit = gridBounds(cols, rows, 1);
+    const Hm = computeHomography(canonicalCorners(bUnit), corners);
+    const rad = radiusFor(size);
+    const metaVals = new Uint32Array(META_CELLS);
+    readCells(imgData, Hm, cols, bUnit, 0, META_CELLS, rad, metaVals, null, 12, 0);
+    const meta = parseMeta(unpackBits(metaVals, 12, META_BYTES));
+    if(!meta.valid) return {ok:false, reason:'امضای متادیتا نامعتبر'};
+    if(meta.len !== preRSLen) return {ok:false, reason:'طول داده ناسازگار'};
+    if(meta.density !== density) return {ok:false, reason:'چگالی ناسازگار'};
+    if((meta.flags || 0) !== (flags || 0)) return {ok:false, reason:'فلگ‌ها ناسازگار'};
+    if((meta.ecLevel || 0) !== (ecLevel || 0)) return {ok:false, reason:'سطح EC ناسازگار'};
+    const targetCells = (meta.version === 4 && meta.ecLevel > 0)
+      ? cellsForEncoded(meta.len, meta.ecLevel, meta.density)
+      : cellsForPayload(meta.len, meta.density);
+    const dims = gridDims(targetCells);
+    if(dims.cols !== cols || dims.rows !== rows) return {ok:false, reason:'ابعاد شبکه ناسازگار'};
+    return {ok:true};
+  } catch(e){
+    return {ok:false, reason:'دیکود: ' + e.message};
+  }
+}
+
+async function renderCodeSmart(preRSBytes, encodedBytes, densityChoice, flags, ecLevel){
+  const maxArea = getMaxCanvasArea();
+  let density = densityChoice === 'auto'
+    ? (encodedBytes.length > 65536 ? DENSITY_DENSE : DENSITY_STD)
+    : densityChoice;
+
+  if(densityChoice === 'auto' && density === DENSITY_STD){
+    const cells = cellsForEncoded(preRSBytes.length, ecLevel, DENSITY_STD);
+    const d = gridDims(cells);
+    const b = gridBounds(d.cols, d.rows, AUTO_MIN_CELL);
+    const m = marginFor(AUTO_MIN_CELL);
+    const W = Math.ceil(b.width + 2*m), H = Math.ceil(b.height + 2*m);
+    if(W > CANVAS_HARD_LIMIT || H > CANVAS_HARD_LIMIT || W*H > maxArea){
+      density = DENSITY_DENSE;
+    }
+  }
+
+  const cells = cellsForEncoded(preRSBytes.length, ecLevel, density);
+  const dims = gridDims(cells);
+  const {cols, rows} = dims;
+
+  let startSize = AUTO_MIN_CELL;
+  while(startSize <= AUTO_MAX_CELL){
+    const b = gridBounds(cols, rows, startSize);
+    const m = marginFor(startSize);
+    const W = Math.ceil(b.width + 2*m), H = Math.ceil(b.height + 2*m);
+    if(W <= CANVAS_HARD_LIMIT && H <= CANVAS_HARD_LIMIT && W*H <= maxArea) break;
+    startSize++;
+  }
+  if(startSize > AUTO_MAX_CELL){
+    throw new Error('متن برای رندر در اندازه‌ی قابل اسکن خیلی بزرگ است.');
+  }
+
+  let lastReason = '';
+  for(let size = startSize; size <= AUTO_MAX_CELL; size++){
+    setStatus('encode-status', `تلاش برای رندر در اندازه‌ی ${toPersianDigits(size)} پیکسل و تأیید خودکار...`, 'info');
+    await nextFrame();
+    const info = await renderAtSize(preRSBytes, encodedBytes, density, ecLevel, flags, size);
+    const v = verifyRendered(info, preRSBytes.length, density, flags, ecLevel);
+    if(v.ok){
+      return {...info, verified:true, attempts: size - startSize + 1, startSize};
+    }
+    lastReason = v.reason;
+  }
+  throw new Error(`رندر در هیچ اندازه‌ای تا ${toPersianDigits(AUTO_MAX_CELL)} پیکسل قابل تأیید نبود (${lastReason}).`);
+}
+
+async function renderCodeManual(preRSBytes, encodedBytes, requestedSize, densityChoice, flags, ecLevel){
+  const density = densityChoice === 'auto'
+    ? (encodedBytes.length > 65536 ? DENSITY_DENSE : DENSITY_STD)
+    : densityChoice;
+
+  const cellData = buildCellValues(preRSBytes, encodedBytes, density, ecLevel, flags);
+  const {metaVals, payloadVals, totalCells, cols, rows, payloadCells} = cellData;
+
+  const maxArea = getMaxCanvasArea();
+  const areaFor = s => {
+    const b = gridBounds(cols, rows, s), m = marginFor(s);
+    return (b.width + 2*m) * (b.height + 2*m);
+  };
+  const MIN_CELL = 2;
+  let size = requestedSize;
+  while(size > MIN_CELL && areaFor(size) > maxArea) size--;
+  if(areaFor(size) > maxArea){
+    throw new Error('حجم داده برای یک تصویر بیش از حد بزرگ است.');
+  }
+
+  const b = gridBounds(cols, rows, size);
+  const margin = marginFor(size);
+  const W = Math.ceil(b.width + 2*margin);
+  const H = Math.ceil(b.height + 2*margin);
+  if(W > CANVAS_HARD_LIMIT || H > CANVAS_HARD_LIMIT) throw new Error('ابعاد تصویر از حد مجاز مرورگر بیشتر است.');
+
+  const canvas = document.getElementById('encode-canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#0A0A0F';
+  ctx.fillRect(0, 0, W, H);
+
+  const hs = size * 0.96;
+  const ox = new Float32Array(6), oy = new Float32Array(6);
+  for(let k=0;k<6;k++){
+    ox[k] = hs*Math.cos(Math.PI/3*k);
+    oy[k] = hs*Math.sin(Math.PI/3*k);
+  }
+
+  const cache12 = new Array(4096);
+  const cache18 = density === 18 ? new Array(262144) : null;
+  const color12 = v => cache12[v] || (cache12[v] = rgbStr(valueToRGB(v, 12)));
+  const color18 = v => cache18[v] || (cache18[v] = rgbStr(valueToRGB(v, 18)));
+  const payloadColor = density === 12 ? color12 : color18;
+
+  const totalGrid = cols * rows;
+  const batches = new Map();
+  let drawn = 0;
+  const YIELD_EVERY = 100000;
+
+  for(let i=0;i<totalGrid;i++){
+    const c = cellCenter(i, cols, size);
+    const cx = margin + (c.x - b.minX);
+    const cy = margin + (c.y - b.minY);
+    let fill;
+    if(i < META_CELLS) fill = color12(metaVals[i]);
+    else if(i < totalCells) fill = payloadColor(payloadVals[i - META_CELLS]);
+    else fill = '#1c1c28';
+
+    let path = batches.get(fill);
+    if(!path){ path = new Path2D(); batches.set(fill, path); }
+    path.moveTo(cx+ox[0], cy+oy[0]);
+    for(let k=1;k<6;k++) path.lineTo(cx+ox[k], cy+oy[k]);
+    path.closePath();
+
+    drawn++;
+    if((drawn % YIELD_EVERY) === 0){
+      setStatus('encode-status', `در حال رندر سلول‌ها... ${toPersianDigits(Math.round(drawn/totalGrid*100))}٪`, 'info');
+      await nextFrame();
+    }
+  }
+
+  let painted = 0;
+  for(const [color, path] of batches){
+    ctx.fillStyle = color;
+    ctx.fill(path);
+    painted++;
+    if((painted % 500) === 0) await nextFrame();
+  }
+  batches.clear();
+
+  const pd = MARK_PAD * size;
+  const finderCenters = [
+    [margin-pd, margin-pd],
+    [margin+b.width+pd, margin-pd],
+    [margin+b.width+pd, margin+b.height+pd],
+    [margin-pd, margin+b.height+pd]
+  ];
+  for(const [cx,cy] of finderCenters){
+    for(const [x,y,ww,hh,g] of finderRects(cx, cy, FINDER_MOD*size)){
+      ctx.fillStyle = g ? '#fff' : '#000';
+      ctx.fillRect(x, y, ww, hh);
+    }
+  }
+
+  return {payloadLength: encodedBytes.length, preRSLength: preRSBytes.length,
+          cells: totalCells, cols, rows, W, H, size,
+          requestedSize, density, payloadCells, verified:false, flags, ecLevel};
+}
+
+async function renderCode(text, requestedSize, densityChoice, autoMin, transformOpts){
+  const {preRSBytes, encodedBytes, flags, ecLevel} = await preparePayload(text, transformOpts);
+  if(!preRSBytes.length) throw new Error('متن خالی است.');
+  if(encodedBytes.length > MAX_PAYLOAD) throw new Error('متن از سقف مجاز بیشتر است.');
+  if(autoMin) return await renderCodeSmart(preRSBytes, encodedBytes, densityChoice, flags, ecLevel);
+  return await renderCodeManual(preRSBytes, encodedBytes, requestedSize, densityChoice, flags, ecLevel);
+}
+
+/* ===================== ENCODE UI ===================== */
+
+const textInput = document.getElementById('text-input');
+const charCountEl = document.getElementById('char-count');
+const byteCountEl = document.getElementById('byte-count');
+const cellEstimateEl = document.getElementById('cell-estimate');
+const savingsCounter = document.getElementById('savings-counter');
+const savingsValue = document.getElementById('savings-value');
+const cellSizeInput = document.getElementById('cell-size');
+const cellSizeVal = document.getElementById('cell-size-val');
+const densitySelect = document.getElementById('density-select');
+const ecSelect = document.getElementById('ec-select');
+const renderBtn = document.getElementById('render-btn');
+const autoMinCheckbox = document.getElementById('auto-min');
+const compressToggle = document.getElementById('compress-toggle');
+const encryptToggle = document.getElementById('encrypt-toggle');
+const passwordInput = document.getElementById('password-input');
+const passwordRow = document.getElementById('password-row');
+
+function chosenDensity(n){
+  const c = densitySelect.value;
+  if(c === 'auto') return n > 65536 ? 18 : 12;
+  return parseInt(c, 10);
+}
+
+let counterToken = 0;
+async function updateCounters(){
+  const token = ++counterToken;
+  const text = textInput.value;
+  const raw = new TextEncoder().encode(text);
+  const n = raw.length;
+  charCountEl.textContent = toPersianDigits(text.length);
+  byteCountEl.textContent = toPersianDigits(n.toLocaleString('en-US')) + ' بایت';
+
+  if(n > 0){
+    const density = chosenDensity(n);
+    const ecLevel = parseInt(ecSelect.value, 10) || 0;
+    const cells = cellsForEncoded(n, ecLevel, density);
+    const d = gridDims(cells);
+    cellEstimateEl.textContent = `${toPersianDigits(cells.toLocaleString('en-US'))} (${toPersianDigits(d.cols)}×${toPersianDigits(d.rows)})`;
+
+    if(compressToggle.checked && hasCompression && n > 40){
+      try {
+        const compressed = await gzipCompress(raw);
+        if(token !== counterToken) return;
+        const saved = 1 - compressed.length / n;
+        if(saved > 0.03){
+          savingsCounter.style.display = 'flex';
+          savingsValue.textContent = `٪${toPersianDigits(Math.round(saved*100))}`;
+        } else {
+          savingsCounter.style.display = 'none';
+        }
+      } catch(e){ savingsCounter.style.display = 'none'; }
+    } else {
+      savingsCounter.style.display = 'none';
+    }
+  } else {
+    cellEstimateEl.textContent = '—';
+    savingsCounter.style.display = 'none';
+  }
+  renderBtn.disabled = false;
+  if(n > 262144){
+    setStatus('encode-status', 'متن بزرگ است؛ رندر ممکن است چند ثانیه طول بکشد.', 'info');
+  } else {
+    clearStatus('encode-status');
+  }
+}
+
+let counterDebounce = null;
+function scheduleCounterUpdate(){
+  clearTimeout(counterDebounce);
+  counterDebounce = setTimeout(updateCounters, 200);
+}
+
+textInput.addEventListener('input', scheduleCounterUpdate);
+densitySelect.addEventListener('change', scheduleCounterUpdate);
+ecSelect.addEventListener('change', scheduleCounterUpdate);
+compressToggle.addEventListener('change', scheduleCounterUpdate);
+
+encryptToggle.addEventListener('change', () => {
+  passwordRow.style.display = encryptToggle.checked ? 'flex' : 'none';
+});
+
+cellSizeInput.addEventListener('input', () => {
+  if(autoMinCheckbox.checked) return;
+  cellSizeVal.textContent = toPersianDigits(cellSizeInput.value) + ' پیکسل';
+});
+
+autoMinCheckbox.addEventListener('change', () => {
+  const auto = autoMinCheckbox.checked;
+  cellSizeInput.disabled = auto;
+  cellSizeVal.textContent = auto ? '— خودکار —' : toPersianDigits(cellSizeInput.value) + ' پیکسل';
+  updateCounters();
+});
+
+document.querySelectorAll('.sample-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    textInput.value = chip.dataset.sample;
+    updateCounters();
+    textInput.focus();
+  });
+});
+
+const EC_NAMES = ['خاموش', 'کم', 'متوسط', 'زیاد'];
+
+renderBtn.addEventListener('click', async () => {
+  const text = textInput.value;
+  if(!text.trim()){ showToast('لطفاً ابتدا متنی وارد کنید.', 'error'); return; }
+  const wantEncrypt = encryptToggle.checked;
+  const password = passwordInput.value;
+  if(wantEncrypt && !password){ showToast('برای رمزنگاری، رمز عبور را وارد کنید.', 'error'); passwordInput.focus(); return; }
+  if(wantEncrypt && !hasCrypto){ showToast('مرورگر از رمزنگاری پشتیبانی نمی‌کند.', 'error'); return; }
+  if(compressToggle.checked && !hasCompression){ showToast('مرورگر از فشرده‌سازی پشتیبانی نمی‌کند.', 'error'); return; }
+
+  renderBtn.disabled = true;
+  setStatus('encode-status', 'در حال آماده‌سازی...', 'info');
+  await nextFrame();
+  try{
+    const dc = densitySelect.value;
+    const ecLevel = parseInt(ecSelect.value, 10) || 0;
+    const sizeArg = autoMinCheckbox.checked ? 0 : parseInt(cellSizeInput.value, 10);
+    const info = await renderCode(text, sizeArg, dc === 'auto' ? 'auto' : parseInt(dc, 10), autoMinCheckbox.checked, {
+      compress: compressToggle.checked,
+      password: wantEncrypt ? password : null,
+      ecLevel
+    });
+
+    document.getElementById('encode-canvas-wrap').style.display = 'flex';
+    document.getElementById('encode-actions').style.display = 'flex';
+
+    const badges = [];
+    if(info.flags & FLAG_COMPRESS) badges.push('فشرده');
+    if(info.flags & FLAG_ENCRYPT) badges.push('رمزنگاری');
+    if(info.ecLevel > 0) badges.push('EC:' + EC_NAMES[info.ecLevel]);
+    const badgeStr = badges.length ? ` [${badges.join(' + ')}]` : '';
+
+    let msg = `ساخته شد${badgeStr} — ${toPersianDigits(info.payloadLength.toLocaleString('en-US'))} بایت، ${toPersianDigits(info.cells.toLocaleString('en-US'))} سلول، ${toPersianDigits(info.W)}×${toPersianDigits(info.H)} پیکسل، سلول ${toPersianDigits(info.size)}px، چگالی ${toPersianDigits(info.density)} بیت.`;
+    if(info.verified) msg += ` تأییدشده (${toPersianDigits(info.attempts)} تلاش).`;
+    if(!autoMinCheckbox.checked && info.size !== info.requestedSize) msg += ` (از ${toPersianDigits(info.requestedSize)} کاهش یافت.)`;
+    setStatus('encode-status', msg, 'success');
+    showToast('کد با موفقیت ساخته شد.', 'success');
+
+    saveHistory({
+      text: text.slice(0, 500),
+      textLen: text.length,
+      payloadLen: info.payloadLength,
+      cells: info.cells,
+      size: info.size,
+      density: info.density,
+      ecLevel: info.ecLevel,
+      flags: info.flags,
+      W: info.W,
+      H: info.H,
+      ts: Date.now()
+    });
+  }catch(err){
+    setStatus('encode-status', 'خطا: ' + err.message, 'error');
+    showToast(err.message, 'error');
+  }finally{
+    renderBtn.disabled = false;
+  }
+});
+
+/* ===================== DOWNLOAD / SHARE / PRINT ===================== */
+
+document.getElementById('download-png-btn').addEventListener('click', () => {
+  document.getElementById('encode-canvas').toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = 'zetcode.png';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  });
+});
+document.getElementById('copy-image-btn').addEventListener('click', () => {
+  document.getElementById('encode-canvas').toBlob(async blob => {
+    try{
+      await navigator.clipboard.write([new ClipboardItem({'image/png': blob})]);
+      showToast('تصویر در کلیپ‌بورد کپی شد.', 'success');
+    }catch(e){
+      showToast('کپی در این مرورگر پشتیبانی نمی‌شود.', 'error');
+    }
+  });
+});
+document.getElementById('share-btn').addEventListener('click', async () => {
+  const canvas = document.getElementById('encode-canvas');
+  if(!navigator.share){ showToast('اشتراک‌گذاری در این مرورگر پشتیبانی نمی‌شود.', 'error'); return; }
+  canvas.toBlob(async blob => {
+    const file = new File([blob], 'zetcode.png', {type:'image/png'});
+    try {
+      if(navigator.canShare && navigator.canShare({files:[file]})){
+        await navigator.share({files:[file], title:'ZetCode', text:'کد ZetCode'});
+      } else {
+        await navigator.share({title:'ZetCode', text:'کد ZetCode'});
+      }
+    } catch(e){}
+  });
+});
+document.getElementById('print-btn').addEventListener('click', () => {
+  const dataUrl = document.getElementById('encode-canvas').toDataURL('image/png');
+  const win = window.open('', '_blank');
+  if(!win){ showToast('پنجره‌ی چاپ مسدود شد.', 'error'); return; }
+  win.document.write(`<img src="${dataUrl}" style="width:100%" onload="window.print()">`);
+});
+
+/* ===================== HISTORY ===================== */
+
+const HISTORY_KEY = 'zetcode-history-v2';
+function loadHistory(){
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch(e){ return []; }
+}
+function persistHistory(items){
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(items.slice(0, 30))); } catch(e){}
+}
+function saveHistory(entry){
+  const items = loadHistory();
+  items.unshift(entry);
+  persistHistory(items);
+  renderHistory();
+}
+function renderHistory(){
+  const items = loadHistory();
+  const list = document.getElementById('history-list');
+  const empty = document.getElementById('history-empty');
+  list.innerHTML = '';
+  if(!items.length){ empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  const frag = document.createDocumentFragment();
+  items.forEach((it, idx) => {
+    const el = document.createElement('div');
+    el.className = 'history-item';
+    const badges = [];
+    if(it.flags & FLAG_COMPRESS) badges.push('فشرده');
+    if(it.flags & FLAG_ENCRYPT) badges.push('رمز');
+    if(it.ecLevel > 0) badges.push('EC:' + EC_NAMES[it.ecLevel]);
+    const date = new Date(it.ts).toLocaleString('fa-IR', {dateStyle:'short', timeStyle:'short'});
+    el.innerHTML = `
+      <span class="history-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2.5 3.5 7.3v9.4L12 21.5l8.5-4.8V7.3z"/>
+          <path d="M12 21.5v-9.4"/>
+        </svg>
+      </span>
+      <div class="history-body">
+        <div class="history-text"></div>
+        <div class="history-meta">
+          <span>${toPersianDigits(it.textLen)} کاراکتر</span>
+          <span>${toPersianDigits(it.cells.toLocaleString('en-US'))} سلول</span>
+          <span>${toPersianDigits(it.size)}px</span>
+          ${badges.length ? '<span>'+badges.join(' + ')+'</span>' : ''}
+          <span>${date}</span>
+        </div>
+      </div>
+      <div class="history-actions">
+        <button class="mini-btn" data-act="reuse" title="بازاستفاده">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 12a9 9 0 0 1 15.3-6.4L21 8.5"/>
+            <path d="M21 3.5v5h-5"/>
+          </svg>
+        </button>
+        <button class="mini-btn" data-act="del" title="حذف">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 6l12 12M18 6 6 18"/>
+          </svg>
+        </button>
+      </div>
+    `;
+    el.querySelector('.history-text').textContent = it.text.replace(/\s+/g,' ').slice(0, 80);
+    el.querySelector('[data-act="reuse"]').addEventListener('click', e => {
+      e.stopPropagation();
+      textInput.value = it.text;
+      updateCounters();
+      document.querySelector('[data-tab="encode"]').click();
+      textInput.focus();
+      showToast('متن در ویرایشگر بارگذاری شد.', 'success');
+    });
+    el.querySelector('[data-act="del"]').addEventListener('click', e => {
+      e.stopPropagation();
+      const items = loadHistory();
+      items.splice(idx, 1);
+      persistHistory(items);
+      renderHistory();
+    });
+    frag.appendChild(el);
+  });
+  list.appendChild(frag);
+}
+document.getElementById('clear-history-btn').addEventListener('click', () => {
+  if(confirm('تاریخچه پاک شود؟')){
+    persistHistory([]);
+    renderHistory();
+  }
+});
+renderHistory();
+
+/* ===================== DECODE UI ===================== */
+
+const decodeCanvas = document.getElementById('decode-canvas');
+const decodeCtx = decodeCanvas.getContext('2d');
+const loupe = document.getElementById('loupe');
+const loupeCtx = loupe.getContext('2d');
+
+let baseCanvas = null;
+let baseImageData = null;
+let decodeState = {stage:'idle', corners:[], detected:null};
+let pendingPt = null;
+
+const CORNER_NAMES = ['بالا‌چپ', 'بالا‌راست', 'پایین‌راست', 'پایین‌چپ'];
+
+function showControls(manual){
+  document.getElementById('decode-controls').style.display = 'flex';
+  document.getElementById('manual-mode-btn').style.display = manual ? 'none' : 'inline-flex';
+  document.getElementById('undo-point-btn').style.display = manual ? 'inline-flex' : 'none';
+  document.getElementById('reset-calibration-btn').style.display = manual ? 'inline-flex' : 'none';
+}
+function resetResultUI(){
+  document.getElementById('decode-progress-wrap').style.display = 'none';
+  document.getElementById('decode-progress-label').style.display = 'none';
+  document.getElementById('decode-progress-fill').style.width = '0%';
+  document.getElementById('result-text').style.display = 'none';
+  document.getElementById('result-actions').style.display = 'none';
+}
+function setProgress(done, total){
+  document.getElementById('decode-progress-wrap').style.display = 'block';
+  const label = document.getElementById('decode-progress-label');
+  label.style.display = 'block';
+  document.getElementById('decode-progress-fill').style.width = Math.round(done/total*100) + '%';
+  label.textContent = `${toPersianDigits(done.toLocaleString('en-US'))} از ${toPersianDigits(total.toLocaleString('en-US'))} سلول خوانده شد`;
+}
+async function showResult(res){
+  const flags = res.flags || 0;
+
+  // رمزنگاری
+  if(flags & FLAG_ENCRYPT){
+    const pw = prompt('این کد رمزنگاری شده است. رمز عبور را وارد کنید:');
+    if(!pw){ setStatus('decode-status', 'رمز عبور وارد نشد.', 'error'); return; }
+    try {
+      const recovered = await recoverPayload(res.payload, flags, pw);
+      const text = new TextDecoder('utf-8', {fatal:false}).decode(recovered);
+      const resultEl = document.getElementById('result-text');
+      resultEl.value = text;
+      resultEl.style.display = 'block';
+      document.getElementById('result-actions').style.display = 'flex';
+      setStatus('decode-status', `متن رمزگشایی شد (${toPersianDigits(res.cells.toLocaleString('en-US'))} سلول)`, 'success');
+      showToast('متن با موفقیت رمزگشایی شد', 'success');
+    } catch(e){
+      setStatus('decode-status', e.message, 'error');
+    }
+    return;
+  }
+
+  // بدون رمزنگاری
+  let finalPayload = res.payload;
+  if(flags & FLAG_COMPRESS){
+    try {
+      finalPayload = await recoverPayload(res.payload, flags, null);
+    } catch(e){
+      setStatus('decode-status', 'خطا در بازکردن فشرده‌سازی: ' + e.message, 'error');
+      return;
+    }
+  }
+
+  const text = new TextDecoder('utf-8', {fatal:false}).decode(finalPayload);
+  const resultEl = document.getElementById('result-text');
+  resultEl.value = text;
+  resultEl.style.display = 'block';
+  document.getElementById('result-actions').style.display = 'flex';
+
+  if(res.rsFailed){
+    setStatus('decode-status', 'هشدار: تصحیح خطا ناموفق بود؛ متن ممکن است ناقص باشد.', 'error');
+    showToast('تصحیح خطا ناموفق', 'error');
+    return;
+  }
+
+  if(res.crcOk){
+    const badges = [];
+    if(flags & FLAG_COMPRESS) badges.push('فشرده');
+    if(res.ecLevel > 0) badges.push('EC:' + EC_NAMES[res.ecLevel]);
+    const badgeStr = badges.length ? ` [${badges.join(' + ')}]` : '';
+    let extra = '';
+    if(res.corrected > 0) extra = ` — ${toPersianDigits(res.corrected)} خطا تصحیح شد`;
+    setStatus('decode-status', `متن با موفقیت بازخوانی شد${badgeStr}${extra} (${toPersianDigits(res.cells.toLocaleString('en-US'))} سلول، چگالی ${toPersianDigits(res.density)} بیت)`, 'success');
+    showToast('متن با موفقیت بازخوانی شد', 'success');
+  } else {
+    const hint = res.ppu < 4 ? ' وضوح تصویر پایین است.' : '';
+    setStatus('decode-status', 'هشدار: کد پیدا شد اما بررسی CRC ناموفق بود؛ ممکن است چند سلول اشتباه خوانده شده باشد.' + hint, 'error');
+  }
+}
+function drawDetection(ctx, scale, detected){
+  if(!detected) return;
+  ctx.lineWidth = 2*scale;
+  (detected.finders || []).forEach(f => {
+    ctx.beginPath();
+    ctx.arc(f.x, f.y, 3.5*f.m, 0, Math.PI*2);
+    ctx.strokeStyle = '#10B981';
+    ctx.stroke();
+  });
+  if(detected.corners){
+    ctx.beginPath();
+    detected.corners.forEach((p,i) => i ? ctx.lineTo(p.x,p.y) : ctx.moveTo(p.x,p.y));
+    ctx.closePath();
+    ctx.strokeStyle = 'rgba(34,211,238,.95)';
+    ctx.stroke();
+  }
+}
+function loadImageToDecodeCanvas(imgEl){
+  const maxSide = 7000;
+  const scale = Math.min(1, maxSide / Math.max(imgEl.naturalWidth, imgEl.naturalHeight));
+  const w = Math.round(imgEl.naturalWidth * scale), h = Math.round(imgEl.naturalHeight * scale);
+  baseCanvas = document.createElement('canvas');
+  baseCanvas.width = w; baseCanvas.height = h;
+  const bctx = baseCanvas.getContext('2d', {willReadFrequently:true});
+  bctx.drawImage(imgEl, 0, 0, w, h);
+  baseImageData = bctx.getImageData(0, 0, w, h);
+  decodeCanvas.width = w; decodeCanvas.height = h;
+  document.getElementById('decode-canvas-wrap').style.display = 'flex';
+  runAutoScan();
+}
+async function runAutoScan(){
+  decodeState = {stage:'auto', corners:[], detected:null};
+  resetResultUI();
+  document.getElementById('corner-instructions').style.display = 'none';
+  document.getElementById('decode-controls').style.display = 'none';
+  redrawDecode();
+  setStatus('decode-status', 'در حال تشخیص خودکار کد...', 'info');
+  await nextFrame();
+  try{
+    const r = await scanImage(baseImageData, setProgress);
+    decodeState.detected = {finders: r.finders, corners: r.corners};
+    redrawDecode();
+    if(r.ok){
+      await showResult(r.res);
+      decodeState.stage = 'done';
+      if(!r.res.crcOk || r.res.rsFailed) showControls(false);
+    }else{
+      resetResultUI();
+      const msg = r.reason === 'finders' || r.reason === 'quad'
+        ? 'چهار الگوی گوشه‌ی کد در تصویر پیدا نشد.'
+        : 'الگوهای گوشه پیدا شد اما محتوای کد خوانده نشد.';
+      setStatus('decode-status', msg, 'error');
+      showControls(false);
+    }
+  }catch(err){
+    resetResultUI();
+    setStatus('decode-status', 'خطا: ' + err.message, 'error');
+    showControls(false);
+  }
+}
+function updateInstructions(){
+  const n = decodeState.corners.length;
+  const box = document.getElementById('corner-instructions');
+  box.style.display = 'block';
+  box.textContent = n < 4
+    ? `نقطه‌ی ${toPersianDigits(n+1)} از ۴ — مرکز الگوی گوشه‌ی «${CORNER_NAMES[n]}» را مشخص کنید.`
+    : 'در حال خواندن...';
+}
+function startManual(){
+  decodeState = {stage:'awaiting-corners', corners:[], detected:null};
+  resetResultUI();
+  clearStatus('decode-status');
+  showControls(true);
+  redrawDecode();
+  updateInstructions();
+}
+function redrawDecode(){
+  if(!baseCanvas) return;
+  decodeCtx.drawImage(baseCanvas, 0, 0);
+  const rect = decodeCanvas.getBoundingClientRect();
+  const k = rect.width ? decodeCanvas.width / rect.width : 1;
+  drawDetection(decodeCtx, k, decodeState.detected);
+  decodeState.corners.forEach((p,i) => {
+    decodeCtx.beginPath();
+    decodeCtx.arc(p.x, p.y, 5*k, 0, Math.PI*2);
+    decodeCtx.fillStyle = '#6D6AF7';
+    decodeCtx.fill();
+    decodeCtx.strokeStyle = '#fff';
+    decodeCtx.lineWidth = 1.5*k;
+    decodeCtx.stroke();
+    decodeCtx.fillStyle = '#fff';
+    decodeCtx.font = `${13*k}px sans-serif`;
+    decodeCtx.fillText(String(i+1), p.x + 8*k, p.y - 8*k);
+  });
+}
+function eventToImagePoint(ev){
+  const rect = decodeCanvas.getBoundingClientRect();
+  return {
+    x: (ev.clientX - rect.left) * decodeCanvas.width / rect.width,
+    y: (ev.clientY - rect.top) * decodeCanvas.height / rect.height
+  };
+}
+function showLoupe(ev, pt){
+  const R = 16;
+  loupeCtx.imageSmoothingEnabled = false;
+  loupeCtx.clearRect(0, 0, 132, 132);
+  loupeCtx.drawImage(baseCanvas, pt.x - R, pt.y - R, 2*R, 2*R, 0, 0, 132, 132);
+  loupeCtx.strokeStyle = '#ff2d55';
+  loupeCtx.lineWidth = 1;
+  loupeCtx.beginPath();
+  loupeCtx.moveTo(66, 0); loupeCtx.lineTo(66, 132);
+  loupeCtx.moveTo(0, 66); loupeCtx.lineTo(132, 66);
+  loupeCtx.stroke();
+  const left = Math.max(4, Math.min(window.innerWidth - 136, ev.clientX - 66));
+  let top = ev.clientY - 170;
+  if(top < 4) top = ev.clientY + 50;
+  loupe.style.left = left + 'px';
+  loupe.style.top = top + 'px';
+  loupe.style.display = 'block';
+}
+decodeCanvas.addEventListener('pointerdown', ev => {
+  if(decodeState.stage !== 'awaiting-corners') return;
+  ev.preventDefault();
+  decodeCanvas.setPointerCapture(ev.pointerId);
+  pendingPt = eventToImagePoint(ev);
+  showLoupe(ev, pendingPt);
+});
+decodeCanvas.addEventListener('pointermove', ev => {
+  if(!pendingPt) return;
+  pendingPt = eventToImagePoint(ev);
+  showLoupe(ev, pendingPt);
+});
+decodeCanvas.addEventListener('pointerup', ev => {
+  if(!pendingPt) return;
+  const pt = eventToImagePoint(ev);
+  pendingPt = null;
+  loupe.style.display = 'none';
+  if(decodeState.stage !== 'awaiting-corners') return;
+  decodeState.corners.push(pt);
+  redrawDecode();
+  updateInstructions();
+  if(decodeState.corners.length === 4) runManualDecode();
+});
+decodeCanvas.addEventListener('pointercancel', () => { pendingPt = null; loupe.style.display = 'none'; });
+
+document.getElementById('manual-mode-btn').addEventListener('click', () => { if(baseCanvas) startManual(); });
+document.getElementById('undo-point-btn').addEventListener('click', () => {
+  if(decodeState.stage === 'awaiting-corners' && decodeState.corners.length){
+    decodeState.corners.pop();
+    redrawDecode();
+    updateInstructions();
+  }
+});
+document.getElementById('reset-calibration-btn').addEventListener('click', () => { if(baseCanvas) startManual(); });
+
+async function runManualDecode(){
+  decodeState.stage = 'decoding';
+  setStatus('decode-status', 'در حال خواندن کد...', 'info');
+  await nextFrame();
+  try{
+    const res = await decodeFromCorners(baseImageData, decodeState.corners, setProgress);
+    if(!res.ok){
+      setStatus('decode-status', res.error, 'error');
+      startManualKeepStatus();
+      return;
+    }
+    await showResult(res);
+    decodeState.stage = 'done';
+  }catch(err){
+    setStatus('decode-status', 'خطا: ' + err.message, 'error');
+    startManualKeepStatus();
+  }
+}
+function startManualKeepStatus(){
+  decodeState = {stage:'awaiting-corners', corners:[], detected:null};
+  showControls(true);
+  redrawDecode();
+  updateInstructions();
+}
+
+/* ===================== LIVE CAMERA ===================== */
+
+const video = document.getElementById('camera-video');
+const overlay = document.getElementById('scan-overlay');
+const frameCanvas = document.createElement('canvas');
+const frameCtx = frameCanvas.getContext('2d', {willReadFrequently:true});
+let cameraStream = null;
+let cameraTrack = null;
+const live = {on:false, timer:null, attempts:0, best:null};
+
+function stopLive(showBest){
+  live.on = false;
+  clearTimeout(live.timer);
+  if(cameraStream){ cameraStream.getTracks().forEach(t => t.stop()); cameraStream = null; }
+  cameraTrack = null;
+  video.srcObject = null;
+  document.getElementById('video-wrap').style.display = 'none';
+  document.getElementById('stop-scan-btn').style.display = 'none';
+  document.getElementById('camera-controls').style.display = 'none';
+  document.getElementById('torch-btn').style.display = 'none';
+  document.getElementById('zoom-in-btn').style.display = 'none';
+  document.getElementById('zoom-out-btn').style.display = 'none';
+  if(showBest && live.best){ resetResultUI(); showResult(live.best); }
+  live.best = null;
+}
+function drawOverlay(r, w, h){
+  overlay.width = w; overlay.height = h;
+  const ctx = overlay.getContext('2d');
+  ctx.clearRect(0, 0, w, h);
+  drawDetection(ctx, Math.max(1, w/700), {finders: r.finders, corners: r.corners});
+}
+async function liveLoop(){
+  if(!live.on) return;
+  if(video.readyState < 2 || !video.videoWidth){ live.timer = setTimeout(liveLoop, 200); return; }
+  live.attempts++;
+  frameCanvas.width = video.videoWidth; frameCanvas.height = video.videoHeight;
+  frameCtx.drawImage(video, 0, 0);
+  const img = frameCtx.getImageData(0, 0, frameCanvas.width, frameCanvas.height);
+  let r;
+  try{ r = await scanImage(img); }catch(e){ r = {ok:false, finders:[]}; }
+  if(!live.on) return;
+  drawOverlay(r, img.width, img.height);
+  if(r.ok && r.res.crcOk && !r.res.rsFailed){
+    stopLive(false);
+    resetResultUI();
+    await showResult(r.res);
+    return;
+  }
+  if(r.ok) live.best = r.res;
+  const nf = (r.finders || []).length;
+  setStatus('decode-status',
+    r.ok ? 'کد پیدا شد ولی خواندن ناقص است؛ دوربین را ثابت و صاف نگه دارید...'
+         : nf >= 4 ? 'الگوهای گوشه پیدا شد، در حال خواندن...'
+                   : 'در حال جستجوی کد... هر چهار گوشه‌ی کد باید در کادر باشد.',
+    'info');
+  live.timer = setTimeout(liveLoop, 80);
+}
+document.getElementById('activate-camera-btn').addEventListener('click', async () => {
+  if(live.on) return;
+  try{
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'}, width:{ideal:3840}, height:{ideal:2160}}
+    });
+  }catch(err){
+    showToast('دسترسی به دوربین ممکن نشد: ' + err.message, 'error');
+    return;
+  }
+  document.getElementById('decode-canvas-wrap').style.display = 'none';
+  document.getElementById('corner-instructions').style.display = 'none';
+  document.getElementById('decode-controls').style.display = 'none';
+  resetResultUI();
+  baseCanvas = null;
+  video.srcObject = cameraStream;
+  await video.play().catch(() => {});
+  document.getElementById('video-wrap').style.display = 'block';
+  document.getElementById('stop-scan-btn').style.display = 'inline-flex';
+
+  cameraTrack = cameraStream.getVideoTracks()[0];
+  const caps = cameraTrack.getCapabilities ? cameraTrack.getCapabilities() : {};
+  const ctrls = document.getElementById('camera-controls');
+  ctrls.style.display = 'flex';
+  if(caps.torch) document.getElementById('torch-btn').style.display = 'grid';
+  if(caps.zoom){
+    document.getElementById('zoom-in-btn').style.display = 'grid';
+    document.getElementById('zoom-out-btn').style.display = 'grid';
+  }
+
+  live.on = true; live.attempts = 0; live.best = null;
+  setStatus('decode-status', 'در حال جستجوی کد...', 'info');
+  liveLoop();
+});
+document.getElementById('stop-scan-btn').addEventListener('click', () => {
+  const had = !!live.best;
+  stopLive(true);
+  if(!had) clearStatus('decode-status');
+});
+document.getElementById('torch-btn').addEventListener('click', async () => {
+  if(!cameraTrack) return;
+  const btn = document.getElementById('torch-btn');
+  const on = !btn.classList.contains('on');
+  try {
+    await cameraTrack.applyConstraints({advanced:[{torch:on}]});
+    btn.classList.toggle('on', on);
+  } catch(e){ showToast('کنترل چراغ قوه ممکن نشد.', 'error'); }
+});
+let currentZoom = 1;
+document.getElementById('zoom-in-btn').addEventListener('click', async () => {
+  if(!cameraTrack) return;
+  const caps = cameraTrack.getCapabilities ? cameraTrack.getCapabilities() : {};
+  if(!caps.zoom) return;
+  currentZoom = Math.min(caps.zoom.max, currentZoom * 1.4);
+  try { await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]}); } catch(e){}
+});
+document.getElementById('zoom-out-btn').addEventListener('click', async () => {
+  if(!cameraTrack) return;
+  const caps = cameraTrack.getCapabilities ? cameraTrack.getCapabilities() : {};
+  if(!caps.zoom) return;
+  currentZoom = Math.max(caps.zoom.min, currentZoom / 1.4);
+  try { await cameraTrack.applyConstraints({advanced:[{zoom:currentZoom}]}); } catch(e){}
+});
+
+/* ===================== UPLOAD / PASTE / DROP ===================== */
+
+document.getElementById('upload-image-btn').addEventListener('click', () => document.getElementById('file-input').click());
+document.getElementById('file-input').addEventListener('change', ev => {
+  const file = ev.target.files[0];
+  if(!file) return;
+  handleImageFile(file);
+  ev.target.value = '';
+});
+function handleImageFile(file){
+  if(!file.type.startsWith('image/')){
+    showToast('فقط فایل تصویری پذیرفته می‌شود.', 'error');
+    return;
+  }
+  stopLive(false);
+  const url = URL.createObjectURL(file);
+  const img = new Image();
+  img.onload = () => { loadImageToDecodeCanvas(img); URL.revokeObjectURL(url); };
+  img.onerror = () => showToast('این فایل به‌عنوان تصویر خوانده نشد.', 'error');
+  img.src = url;
+}
+
+const dropZone = document.getElementById('drop-zone');
+['dragenter','dragover'].forEach(ev => {
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.add('over'); });
+});
+['dragleave','drop'].forEach(ev => {
+  dropZone.addEventListener(ev, e => { e.preventDefault(); dropZone.classList.remove('over'); });
+});
+dropZone.addEventListener('drop', e => {
+  const file = e.dataTransfer.files[0];
+  if(file) handleImageFile(file);
+});
+document.getElementById('decode-panel').addEventListener('dragover', e => e.preventDefault());
+document.getElementById('decode-panel').addEventListener('drop', e => {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if(file) handleImageFile(file);
+});
+
+document.addEventListener('paste', e => {
+  const decodeActive = document.getElementById('decode-panel').classList.contains('active');
+  if(!decodeActive) return;
+  const items = e.clipboardData && e.clipboardData.items;
+  if(!items) return;
+  for(const it of items){
+    if(it.type.startsWith('image/')){
+      const file = it.getAsFile();
+      if(file){ handleImageFile(file); e.preventDefault(); return; }
+    }
+  }
+});
+
+/* ===================== RESULT ACTIONS ===================== */
+
+document.getElementById('copy-text-btn').addEventListener('click', async () => {
+  try{
+    await navigator.clipboard.writeText(document.getElementById('result-text').value);
+    showToast('متن کپی شد.', 'success');
+  }catch(e){ showToast('کپی ممکن نشد.', 'error'); }
+});
+document.getElementById('download-text-btn').addEventListener('click', () => {
+  const blob = new Blob([document.getElementById('result-text').value], {type:'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'zetcode-decoded.txt';
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+});
+
+/* ===================== TABS ===================== */
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById(btn.dataset.tab + '-panel').classList.add('active');
+    if(btn.dataset.tab !== 'decode') stopLive(false);
+  });
+});
+
+/* ===================== PWA ===================== */
+
+(function setupPWA(){
+  try {
+    const manifest = {
+      name:'ZetCode',
+      short_name:'ZetCode',
+      description:'کدگذاری نوری متن',
+      start_url: location.href,
+      display:'standalone',
+      background_color:'#08090D',
+      theme_color:'#6D6AF7',
+      lang:'fa',
+      dir:'rtl',
+      icons:[{
+        src:'data:image/svg+xml;base64,' + btoa('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6D6AF7"/><stop offset="1" stop-color="#22D3EE"/></linearGradient></defs><rect width="512" height="512" rx="96" fill="#08090D"/><polygon points="256,96 416,192 416,320 256,416 96,320 96,192" fill="url(#g)"/></svg>'),
+        sizes:'512x512',
+        type:'image/svg+xml',
+        purpose:'any maskable'
+      }]
+    };
+    const manifestBlob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+    const manifestUrl = URL.createObjectURL(manifestBlob);
+    const link = document.createElement('link');
+    link.rel = 'manifest';
+    link.href = manifestUrl;
+    document.head.appendChild(link);
+
+    if('serviceWorker' in navigator && location.protocol !== 'file:'){
+      const swCode = `
+        const CACHE = 'zetcode-v2';
+        self.addEventListener('install', e => self.skipWaiting());
+        self.addEventListener('activate', e => self.clients.claim());
+        self.addEventListener('fetch', e => {
+          if(e.request.method !== 'GET') return;
+          e.respondWith(
+            caches.open(CACHE).then(c =>
+              c.match(e.request).then(r => r || fetch(e.request).then(res => {
+                if(res && res.status === 200 && res.type === 'basic') c.put(e.request, res.clone());
+                return res;
+              }).catch(() => c.match(e.request)))
+            )
+          );
+        });
+      `;
+      const swBlob = new Blob([swCode], {type:'application/javascript'});
+      const swUrl = URL.createObjectURL(swBlob);
+      navigator.serviceWorker.register(swUrl).catch(() => {});
+    }
+  } catch(e){}
+
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('pwa-install-btn').style.display = 'grid';
+  });
+  document.getElementById('pwa-install-btn').addEventListener('click', async () => {
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    document.getElementById('pwa-install-btn').style.display = 'none';
+  });
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('pwa-install-btn').style.display = 'none';
+    showToast('ZetCode نصب شد.', 'success');
+  });
+})();
+
+/* ===================== INIT ===================== */
+
+(function init(){
+  cellSizeInput.disabled = true;
+  autoMinCheckbox.checked = true;
+  passwordRow.style.display = 'none';
+  updateCounters();
+})();
+</script>
+</body>
+</html>
