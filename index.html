@@ -113,11 +113,13 @@ textarea:focus,input:focus{border-color:var(--ink)}
     <label for="pw">رمز عبور (اختیاری)</label>
     <input id="pw" type="password" autocomplete="new-password" placeholder="با رمز، فقط دارندگان رمز می‌خوانند">
 
+    <button class="btn" id="mkBtn" style="width:100%;margin-top:16px">ساخت کد</button>
+
     <div class="stage">
       <i class="crop a"></i><i class="crop b"></i><i class="crop c"></i><i class="crop d"></i>
       <canvas id="cv" width="8" height="8" aria-label="پریزم‌کد ساخته‌شده"></canvas>
     </div>
-    <div class="badge wait" id="badge">در حال ساخت…</div>
+    <div class="badge wait" id="badge">متن را بنویسید و دکمه‌ی «ساخت کد» را بزنید.</div>
     <div class="stats" id="stats"></div>
     <div class="actions">
       <button class="btn" id="dlPng" disabled>دانلود PNG</button>
@@ -160,7 +162,7 @@ const Prism = (() => {
   const VER = 1;
   const RATIO = [0.10, 0.20, 0.30, 0.42];
   const SIZES = [];
-  for (let n = 21; n <= 253; n += 4) SIZES.push(n);
+  for (let n = 21; n <= 1357; n += 4) SIZES.push(n);
   const FIN = 4, WHITE = 5;
 
   /* ---------- GF(256) + Reed-Solomon ---------- */
@@ -261,16 +263,15 @@ const Prism = (() => {
   }
 
   /* ---------- Layout ---------- */
-  const layoutCache = {};
+  const layoutCache = {}, layoutKeys = [];
   function layout(N) {
     if (layoutCache[N]) return layoutCache[N];
     const kind = new Uint8Array(N * N);
     for (const [ox, oy] of [[0, 0], [N - 8, 0], [0, N - 8], [N - 8, N - 8]])
       for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) kind[(oy + y) * N + ox + x] = 1;
     for (let i = 8; i <= N - 9; i++) { kind[i] = 2; kind[(N - 1) * N + i] = 2; kind[i * N] = 2; kind[i * N + N - 1] = 2; }
-    const list = [];
-    for (let i = 0; i < N * N; i++) if (kind[i] === 0) list.push(i);
-    const cells = Int32Array.from(list);
+    const cells = new Int32Array(N * N - 256 - 4 * (N - 16));
+    for (let i = 0, ci = 0; i < N * N; i++) if (kind[i] === 0) cells[ci++] = i;
     const r = rng(0x9E3779B9 ^ N);
     const perm = new Int32Array(cells.length >> 2); // permutes whole bytes (4 adjacent cells) so a burst hits few bytes
     for (let i = 0; i < perm.length; i++) perm[i] = i;
@@ -278,23 +279,33 @@ const Prism = (() => {
     const r2 = rng(0x5bd1e995 ^ (N * 2654435761));
     const wh = new Uint8Array(cells.length);
     for (let i = 0; i < wh.length; i++) wh[i] = Math.floor(r2() * 4);
+    layoutKeys.push(N);
+    if (layoutKeys.length > 3) delete layoutCache[layoutKeys.shift()];
     return layoutCache[N] = { kind, cells, perm, wh };
   }
   // ring calibration colour index: edge 0 top,1 right,2 bottom,3 left ; i along the edge
   const ringColor = (edge, i) => (i + edge) & 3;
 
   const blockCache = {};
+  const totalBytes = (N) => (N * N - 256 - 4 * (N - 16)) >> 2;
+  const parOf = (size, level) => { const p = Math.max(6, Math.round(size * RATIO[level])); return p > size - 2 ? size - 2 : p; };
+  function capFor(N, level) {
+    const total = totalBytes(N), nb = Math.ceil(total / 255);
+    const base = Math.floor(total / nb), extra = total % nb;
+    let cap = 0;
+    for (let i = 0; i < nb; i++) { const size = base + (i < extra ? 1 : 0); cap += size - parOf(size, level); }
+    return cap;
+  }
   function blocksFor(N, level) {
     const key = N * 4 + level;
     if (blockCache[key]) return blockCache[key];
-    const total = layout(N).cells.length >> 2;
+    const total = totalBytes(N);
     const nb = Math.ceil(total / 255);
     const base = Math.floor(total / nb), extra = total % nb;
     const blocks = []; let dataCap = 0;
     for (let i = 0; i < nb; i++) {
       const size = base + (i < extra ? 1 : 0);
-      let par = Math.max(6, Math.round(size * RATIO[level]));
-      if (par > size - 2) par = size - 2;
+      const par = parOf(size, level);
       blocks.push({ size, par, data: size - par }); dataCap += size - par;
     }
     return blockCache[key] = { blocks, total, dataCap };
@@ -322,7 +333,7 @@ const Prism = (() => {
 
   /* ---------- Encode to module matrix ---------- */
   function chooseN(len, level) {
-    for (const N of SIZES) if (blocksFor(N, level).dataCap >= len) return N;
+    for (const N of SIZES) if (capFor(N, level) >= len) return N;
     return 0;
   }
   // matrix values: 0..3 palette colour, 4 finder(dark), 5 white
@@ -442,7 +453,7 @@ const Prism = (() => {
     return { cy: top + c / 2, m: mv };
   }
 
-  function findFinders(bin, gw, gh) {
+  function findFinders(bin, gw, gh, cap) {
     const cand = [];
     const rs = new Int32Array(gw + 2), rl = new Int32Array(gw + 2);
     for (let y = 0; y < gh; y++) {
@@ -472,7 +483,7 @@ const Prism = (() => {
             k.m = (k.m * k.n + (m + vr.m) / 2) / (k.n + 1); k.n++; found = true; break;
           }
         }
-        if (!found && cand.length < 500) cand.push({ x: cx, y: vr.cy, m: (m + vr.m) / 2, n: 1 });
+        if (!found && cand.length < cap) cand.push({ x: cx, y: vr.cy, m: (m + vr.m) / 2, n: 1 });
       }
     }
     return cand;
@@ -579,9 +590,8 @@ const Prism = (() => {
     return grid;
   }
 
-  function scan(rgba, w, h) {
+  function scanPass(rgba, w, h, f, cap) {
     const t0 = Date.now();
-    const f = Math.max(1, Math.ceil(Math.max(w, h) / 1100));
     const gw = Math.floor(w / f), gh = Math.floor(h / f);
     const gray = new Uint8Array(gw * gh);
     if (f === 1) {
@@ -614,7 +624,7 @@ const Prism = (() => {
         bin[y * gw + x] = (g * cnt * 100 < sum * 87 || g < dark) ? 1 : 0;
       }
     }
-    const cands = findFinders(bin, gw, gh);
+    const cands = findFinders(bin, gw, gh, cap);
     const quads = quadCandidates(cands);
     if (!quads.length) return { ok: false, corners: null, ms: Date.now() - t0 };
     let corners = quads[0].pts.map(p => [p.x * f, p.y * f]);
@@ -628,8 +638,7 @@ const Prism = (() => {
       const a = ((al % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
       const s = Math.max(Math.cos(a), Math.sin(a));
       const Nest = side / (mAvg * s) + 7;
-      const Ns = SIZES.slice().sort((p, q2) => Math.abs(p - Nest) - Math.abs(q2 - Nest)).slice(0, 3);
-      for (const N of Ns) {
+      const computeRots = (N) => {
         const src = [[3.5, 3.5], [N - 3.5, 3.5], [N - 3.5, N - 3.5], [3.5, N - 3.5]];
         const rots = [];
         for (let r = 0; r < 4; r++) {
@@ -641,6 +650,26 @@ const Prism = (() => {
           rots.push({ r, H, sample, rp });
         }
         rots.sort((p, q2) => p.rp.ratio - q2.rp.ratio);
+        return rots;
+      };
+      let Ns, pre = null;
+      if (Nest > 260) {
+        // large codes: module size estimate is too coarse, so rank candidate sizes by calibration-ring consistency
+        const range = Math.max(16, Nest * 0.08);
+        pre = new Map();
+        const scored = [];
+        for (const N of SIZES) {
+          if (Math.abs(N - Nest) > range) continue;
+          const rots = computeRots(N);
+          if (rots.length) { pre.set(N, rots); scored.push({ N, ratio: rots[0].rp.ratio }); }
+        }
+        scored.sort((p, q2) => p.ratio - q2.ratio);
+        Ns = scored.slice(0, 3).map(x => x.N);
+      } else {
+        Ns = SIZES.slice().sort((p, q2) => Math.abs(p - Nest) - Math.abs(q2 - Nest)).slice(0, 3);
+      }
+      for (const N of Ns) {
+        const rots = pre ? pre.get(N) : computeRots(N);
         for (let t = 0; t < Math.min(2, rots.length); t++) {
           const R = rots[t];
           if (R.rp.ratio > 0.7) break;
@@ -655,6 +684,22 @@ const Prism = (() => {
       }
     }
     return { ok: false, corners, ms: Date.now() - t0 };
+  }
+
+  // opts.deep: also retry at finer resolutions (used for uploaded images, where large codes are expected)
+  function scan(rgba, w, h, opts) {
+    const t0 = Date.now(), maxd = Math.max(w, h);
+    const fs = [Math.max(1, Math.ceil(maxd / 1100))];
+    const deep = !!(opts && opts.deep);
+    if (deep) for (const tgt of [2600, 5000]) { const f = Math.max(1, Math.ceil(maxd / tgt)); if (f < fs[fs.length - 1]) fs.push(f); }
+    let best = null;
+    for (const f of fs) {
+      const r = scanPass(rgba, w, h, f, deep ? 4000 : 500);
+      if (r.ok) { r.ms = Date.now() - t0; return r; }
+      if (!best || (r.corners && !best.corners)) best = r;
+    }
+    best.ms = Date.now() - t0;
+    return best;
   }
 
   /* ---------- Seal / unseal text (compress + optional AES-GCM) ---------- */
@@ -699,7 +744,7 @@ const Prism = (() => {
     return { text: new TextDecoder().decode(body) };
   }
 
-  return { SIZES, RATIO, FIN, WHITE, layout, blocksFor, chooseN, build, buildFrame, parseFrame, scan, seal, unseal, rsEncode, rsDecode, crc32, homography };
+  return { SIZES, RATIO, FIN, WHITE, layout, blocksFor, capFor, chooseN, build, buildFrame, parseFrame, scan, seal, unseal, rsEncode, rsDecode, crc32, homography };
 })();
 
 
@@ -733,15 +778,24 @@ const Prism = (() => {
     const b = document.createElement('button');
     b.setAttribute('aria-pressed', i === 0);
     b.innerHTML = '<span class="dots">' + p.c.slice(1).map(c => `<i style="background:${c}"></i>`).join('') + '</span>' + p.n;
-    b.onclick = () => { st.pal = i; [...palBox.children].forEach((x, j) => x.setAttribute('aria-pressed', i === j)); schedule(); };
+    b.onclick = () => { st.pal = i; [...palBox.children].forEach((x, j) => x.setAttribute('aria-pressed', i === j)); stale(); };
     palBox.appendChild(b);
   });
   $('#lv').onclick = e => {
     const b = e.target.closest('button'); if (!b) return;
-    st.level = +b.dataset.v; [...$('#lv').children].forEach(x => x.setAttribute('aria-pressed', x === b)); schedule();
+    st.level = +b.dataset.v; [...$('#lv').children].forEach(x => x.setAttribute('aria-pressed', x === b)); stale();
   };
-  $('#txt').oninput = schedule; $('#pw').oninput = schedule;
-  let timer; function schedule() { clearTimeout(timer); timer = setTimeout(make, 160); }
+  $('#txt').oninput = stale; $('#pw').oninput = stale;
+  $('#mkBtn').onclick = make;
+  // any change after a build only marks the result as outdated; nothing is rebuilt until the button is pressed
+  function stale() {
+    if (!st.res) return;
+    st.tok++; st.res = null;
+    $('#dlPng').disabled = $('#dlSvg').disabled = true;
+    $('#badge').className = 'badge wait'; $('#badge').textContent = 'تنظیمات تغییر کرد؛ برای ساخت کد جدید دکمه‌ی «ساخت کد» را بزنید.';
+    $('#cv').style.opacity = '.35';
+  }
+  const nextPaint = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
 
   /* ---------- drawing ---------- */
   function rr(g, x, y, w, h, r) {
@@ -753,11 +807,18 @@ const Prism = (() => {
     cv.width = cv.height = S;
     const g = cv.getContext('2d', { willReadFrequently: true });
     g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
-    const ins = 0.07 * sc, cs = sc - 2 * ins, r = 0.28 * sc;
-    for (let c = 0; c < 4; c++) {
-      g.beginPath();
-      for (let i = 0; i < m.length; i++) if (m[i] === c) rr(g, ((i % N) + Q) * sc + ins, (((i / N) | 0) + Q) * sc + ins, cs, cs, r);
-      g.fillStyle = cols[c]; g.fill();
+    if (sc < 6) { // very large codes: plain full cells (fast, and the most legible for the scanner)
+      for (let c = 0; c < 4; c++) {
+        g.fillStyle = cols[c];
+        for (let i = 0; i < m.length; i++) if (m[i] === c) g.fillRect(((i % N) + Q) * sc, (((i / N) | 0) + Q) * sc, sc, sc);
+      }
+    } else {
+      const ins = 0.07 * sc, cs = sc - 2 * ins, r = 0.28 * sc;
+      for (let c = 0; c < 4; c++) {
+        g.beginPath();
+        for (let i = 0; i < m.length; i++) if (m[i] === c) rr(g, ((i % N) + Q) * sc + ins, (((i / N) | 0) + Q) * sc + ins, cs, cs, r);
+        g.fillStyle = cols[c]; g.fill();
+      }
     }
     g.fillStyle = FINC; g.beginPath();
     const fpos = [[0, 0], [N - 7, 0], [0, N - 7], [N - 7, N - 7]];
@@ -786,29 +847,47 @@ const Prism = (() => {
   }
 
   /* ---------- make ---------- */
+  const kb = n => fa(Math.round(n / 1000));
   async function make() {
     const tok = ++st.tok, text = $('#txt').value;
-    const badge = $('#badge');
-    if (!text) { badge.className = 'badge wait'; badge.textContent = 'متنی بنویسید تا کد ساخته شود.'; return; }
+    const badge = $('#badge'), btn = $('#mkBtn');
+    if (!text) { badge.className = 'badge wait'; badge.textContent = 'ابتدا متن یا لینک را بنویسید.'; return; }
+    btn.disabled = true; btn.textContent = 'در حال ساخت…';
+    badge.className = 'badge wait'; badge.textContent = 'در حال ساخت کد…';
+    $('#dlPng').disabled = $('#dlSvg').disabled = true;
+    await nextPaint();
     try {
       const fr = await Prism.seal(text, { password: $('#pw').value });
       if (tok !== st.tok) return;
       const res = Prism.build(fr, st.level);
-      if (!res) { badge.className = 'badge bad'; badge.textContent = 'متن برای این سطح ترمیم بیش از حد بزرگ است؛ سطح را سبک‌تر کنید یا متن را کوتاه کنید.'; $('#dlPng').disabled = $('#dlSvg').disabled = true; return; }
-      const sc = Math.max(6, Math.min(40, Math.ceil(1200 / (res.N + 2 * Q))));
+      if (!res) {
+        badge.className = 'badge bad';
+        badge.textContent = 'حجم داده (پس از فشرده‌سازی حدود ' + kb(fr.length) + ' کیلوبایت) از ظرفیت این سطح (حدود ' + kb(Prism.capFor(Prism.SIZES[Prism.SIZES.length - 1], st.level)) + ' کیلوبایت) بیشتر است. سطح ترمیم را سبک‌تر کنید یا متن را کوتاه‌تر کنید.';
+        return;
+      }
+      let sc = Math.max(6, Math.min(40, Math.ceil(1200 / (res.N + 2 * Q))));
+      if (sc * (res.N + 2 * Q) > 4096) sc = Math.floor(4096 / (res.N + 2 * Q)); // keep within phone canvas limits
       const cols = PALS[st.pal].c;
       drawCode($('#cv'), res, cols, sc);
+      $('#cv').style.opacity = '';
       st.res = res;
-      $('#dlPng').disabled = $('#dlSvg').disabled = false;
-      const cv = $('#cv'), img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height);
-      const r = Prism.scan(img.data, cv.width, cv.height);
-      if (r.ok) { badge.className = 'badge ok'; badge.textContent = 'خودآزمون موفق: کد در ' + fa(r.ms) + ' میلی‌ثانیه خوانده شد'; }
-      else { badge.className = 'badge bad'; badge.textContent = 'خودآزمون ناموفق بود؛ سطح ترمیم را بالاتر ببرید.'; }
+      const big = res.N > 253;
+      $('#dlPng').disabled = false; $('#dlSvg').disabled = big;
       $('#stats').innerHTML =
         `<div class="stat"><b>${fa(res.N)}×${fa(res.N)}</b><span>خانه</span></div>` +
         `<div class="stat"><b>${fa(res.used)}</b><span>بایت از ${fa(res.dataCap)}</span></div>` +
         `<div class="stat"><b>${fa(res.N * res.N * 2 / 8 | 0)}</b><span>بایت خام</span></div>`;
+      badge.textContent = 'در حال خودآزمون…';
+      await nextPaint();
+      if (tok !== st.tok) return;
+      const cv = $('#cv'), img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height);
+      const r = Prism.scan(img.data, cv.width, cv.height, { deep: big });
+      if (tok !== st.tok) return;
+      if (r.ok) { badge.className = 'badge ok'; badge.textContent = 'خودآزمون موفق: کد در ' + fa(r.ms) + ' میلی‌ثانیه خوانده شد'; }
+      else { badge.className = 'badge bad'; badge.textContent = 'خودآزمون ناموفق بود؛ سطح ترمیم را بالاتر ببرید.'; }
+      if (big) badge.textContent += ' — این کد بزرگ است: برای خواندن، فایل PNG را بدون کوچک‌کردن در بخش «اسکن» انتخاب کنید (دوربین مناسب نیست).';
     } catch (e) { badge.className = 'badge bad'; badge.textContent = 'خطا: ' + e.message; }
+    finally { btn.disabled = false; btn.textContent = 'ساخت کد'; }
   }
   function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
   $('#dlPng').onclick = () => $('#cv').toBlob(b => download('prism-code.png', b), 'image/png');
@@ -861,7 +940,9 @@ const Prism = (() => {
       off.width = Math.round(bmp.width * k); off.height = Math.round(bmp.height * k);
       octx.drawImage(bmp, 0, 0, off.width, off.height);
       const d = octx.getImageData(0, 0, off.width, off.height);
-      const r = Prism.scan(d.data, off.width, off.height);
+      $('#vhint').hidden = false; $('#vhint').textContent = 'در حال خواندن تصویر…';
+      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
+      const r = Prism.scan(d.data, off.width, off.height, { deep: true });
       $('#vhint').hidden = true;
       const v = $('#viewer'); v.style.aspectRatio = off.width + '/' + off.height;
       const pv = document.createElement('canvas'); pv.width = off.width; pv.height = off.height; pv.getContext('2d').drawImage(off, 0, 0);
@@ -893,7 +974,6 @@ const Prism = (() => {
     try { await navigator.clipboard.writeText(t); } catch (e) { const r = document.createRange(); r.selectNodeContents($('#out')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); }
     toast('کپی شد');
   };
-  make();
 })();
 </script>
 </body>
