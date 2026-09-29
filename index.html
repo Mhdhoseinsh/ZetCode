@@ -3,8 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>پریزم‌کد — نسل بعدی کد دوبعدی</title>
-<style>
+<title>ZetCode</title><style>
 :root{
   --paper:#eceff6; --plate:#ffffff; --ink:#191c3d; --mute:#5d6285; --line:#d9ddec;
   --cy:#06b6d4; --mg:#d946ef; --ye:#facc15; --ok:#0f9d6b; --bad:#d6336c;
@@ -14,6 +13,9 @@
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;background:var(--paper);color:var(--ink)}
 body{min-height:100vh;padding:calc(env(safe-area-inset-top) + 18px) 14px calc(env(safe-area-inset-bottom) + 40px);line-height:1.7}
+body{-webkit-user-select:none;user-select:none}
+#out,#txt{-webkit-user-select:text;user-select:text}
+#out ::selection,#txt ::selection{background:#c7e9ff}
 main{max-width:520px;margin:0 auto}
 header{display:flex;align-items:center;gap:12px;margin-bottom:6px}
 .logo{width:46px;height:46px;flex:none}
@@ -30,7 +32,7 @@ textarea,input[type=password],input[type=text]{width:100%;font:inherit;font-size
 textarea{resize:vertical;min-height:88px}
 textarea:focus,input:focus{border-color:var(--ink)}
 .row{display:grid;grid-template-columns:1fr;gap:0}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seg{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
 .seg button,.pal button{font:inherit;font-size:14px;font-weight:700;border:1.5px solid var(--line);background:#f6f7fc;color:var(--ink);border-radius:var(--r-sm);padding:9px 4px;cursor:pointer}
 .seg button[aria-pressed=true],.pal button[aria-pressed=true]{border-color:var(--ink);background:#fff;box-shadow:inset 0 0 0 1px var(--ink)}
 .seg small{display:block;font-weight:500;color:var(--mute);font-size:11.5px;line-height:1.3}
@@ -47,6 +49,10 @@ textarea:focus,input:focus{border-color:var(--ink)}
 #cv{display:block;width:100%;height:auto;aspect-ratio:1;image-rendering:auto;border-radius:6px}
 .badge{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;font-weight:700;min-height:22px}
 .badge.ok{color:var(--ok)}.badge.bad{color:var(--bad)}.badge.wait{color:var(--mute)}
+.prog{display:flex;align-items:center;gap:10px;margin-top:10px}
+.prog .bar{flex:1;height:8px;border-radius:6px;background:#e3e7f3;overflow:hidden}
+.prog .bar i{display:block;height:100%;width:0%;border-radius:6px;background:linear-gradient(90deg,var(--cy),var(--mg),var(--ye));transition:width .18s linear}
+.prog span{font-size:12.5px;font-weight:800;color:var(--mute);font-variant-numeric:tabular-nums;min-width:40px}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
 .stat{background:#f6f7fc;border-radius:var(--r-sm);padding:9px 8px;text-align:center}
 .stat b{display:block;font-size:17px;line-height:1.2;font-variant-numeric:tabular-nums}
@@ -74,20 +80,11 @@ textarea:focus,input:focus{border-color:var(--ink)}
 </head>
 <body>
 <main>
-  <header>
-    <svg class="logo" viewBox="0 0 46 46" aria-hidden="true">
-      <rect x="2" y="2" width="14" height="14" rx="4.5" fill="#191c3d"/><rect x="6" y="6" width="6" height="6" rx="2" fill="#fff"/><rect x="8" y="8" width="2" height="2" rx=".8" fill="#191c3d"/>
-      <rect x="30" y="2" width="14" height="14" rx="4.5" fill="#191c3d"/><rect x="34" y="6" width="6" height="6" rx="2" fill="#fff"/><rect x="36" y="8" width="2" height="2" rx=".8" fill="#191c3d"/>
-      <rect x="2" y="30" width="14" height="14" rx="4.5" fill="#191c3d"/><rect x="6" y="34" width="6" height="6" rx="2" fill="#fff"/><rect x="8" y="36" width="2" height="2" rx=".8" fill="#191c3d"/>
-      <rect x="20" y="4" width="6" height="6" rx="2" fill="#06b6d4"/><rect x="20" y="20" width="6" height="6" rx="2" fill="#d946ef"/><rect x="30" y="20" width="6" height="6" rx="2" fill="#facc15"/>
-      <rect x="20" y="30" width="6" height="6" rx="2" fill="#facc15"/><rect x="30" y="34" width="6" height="6" rx="2" fill="#06b6d4"/><rect x="38" y="30" width="6" height="6" rx="2" fill="#d946ef"/>
-      <rect x="4" y="20" width="6" height="6" rx="2" fill="#d946ef"/>
-    </svg>
-    <div>
-      <h1>پریزم‌کد</h1>
-      <p class="sub">کد دوبعدی رنگی با ۲ بیت در هر خانه، خودکالیبره و رمزنگاری‌شونده</p>
-    </div>
-  </header>
+ <header>
+  <div>
+    <h1>ZetCode</h1>
+  </div>
+</header>
   <div class="spectrum"></div>
 
   <div class="tabs" role="tablist">
@@ -101,6 +98,7 @@ textarea:focus,input:focus{border-color:var(--ink)}
 
     <div class="lbl">میزان ترمیم خرابی</div>
     <div class="seg" id="lv">
+      <button data-v="4" aria-pressed="false">بدون<small>۰٪</small></button>
       <button data-v="0" aria-pressed="false">سبک<small>۱۰٪</small></button>
       <button data-v="1" aria-pressed="true">متعادل<small>۲۰٪</small></button>
       <button data-v="2" aria-pressed="false">قوی<small>۳۰٪</small></button>
@@ -113,13 +111,12 @@ textarea:focus,input:focus{border-color:var(--ink)}
     <label for="pw">رمز عبور (اختیاری)</label>
     <input id="pw" type="password" autocomplete="new-password" placeholder="با رمز، فقط دارندگان رمز می‌خوانند">
 
-    <button class="btn" id="mkBtn" style="width:100%;margin-top:16px">ساخت کد</button>
-
     <div class="stage">
       <i class="crop a"></i><i class="crop b"></i><i class="crop c"></i><i class="crop d"></i>
       <canvas id="cv" width="8" height="8" aria-label="پریزم‌کد ساخته‌شده"></canvas>
     </div>
-    <div class="badge wait" id="badge">متن را بنویسید و دکمه‌ی «ساخت کد» را بزنید.</div>
+    <div class="badge wait" id="badge">در حال ساخت…</div>
+    <div class="prog" id="prog" hidden><div class="bar"><i id="progBar"></i></div><span id="progNum">۰٪</span></div>
     <div class="stats" id="stats"></div>
     <div class="actions">
       <button class="btn" id="dlPng" disabled>دانلود PNG</button>
@@ -150,19 +147,20 @@ textarea:focus,input:focus{border-color:var(--ink)}
         <a class="btn ghost" id="openBtn" target="_blank" rel="noopener noreferrer" hidden>بازکردن لینک</a>
       </div>
     </div>
-    <p class="note">دوربین فقط روی https یا localhost کار می‌کند؛ انتخاب تصویر همه‌جا کار می‌کند.</p>
   </section>
+  <footer style="text-align:center;color:var(--mute);font-size:13px;font-weight:600;margin:24px 2px 0;">ساخته شده توسط محمدحسین شمس</footer>
 </main>
 <div class="toast" id="toast" role="status"></div>
 
-<script>
+<script id="prism">
 'use strict';
 /* ===== Prism Code core: encoder + decoder (no DOM) ===== */
 const Prism = (() => {
   const VER = 1;
-  const RATIO = [0.10, 0.20, 0.30, 0.42];
+  // level 4 = بدون ترمیم (۰٪)
+  const RATIO = [0.10, 0.20, 0.30, 0.42, 0];
   const SIZES = [];
-  for (let n = 21; n <= 1357; n += 4) SIZES.push(n);
+  for (let n = 21; n <= 1401; n += 4) SIZES.push(n);
   const FIN = 4, WHITE = 5;
 
   /* ---------- GF(256) + Reed-Solomon ---------- */
@@ -263,15 +261,20 @@ const Prism = (() => {
   }
 
   /* ---------- Layout ---------- */
-  const layoutCache = {}, layoutKeys = [];
+  const layoutCache = {};
+  // exact number of data-carrying modules for a given side length (no allocation)
+  const cellBytes = (N) => ((N * N - 4 * N - 192) >> 2);
   function layout(N) {
     if (layoutCache[N]) return layoutCache[N];
     const kind = new Uint8Array(N * N);
     for (const [ox, oy] of [[0, 0], [N - 8, 0], [0, N - 8], [N - 8, N - 8]])
       for (let y = 0; y < 8; y++) for (let x = 0; x < 8; x++) kind[(oy + y) * N + ox + x] = 1;
     for (let i = 8; i <= N - 9; i++) { kind[i] = 2; kind[(N - 1) * N + i] = 2; kind[i * N] = 2; kind[i * N + N - 1] = 2; }
-    const cells = new Int32Array(N * N - 256 - 4 * (N - 16));
-    for (let i = 0, ci = 0; i < N * N; i++) if (kind[i] === 0) cells[ci++] = i;
+    let cnt = 0;
+    for (let i = 0; i < N * N; i++) if (kind[i] === 0) cnt++;
+    const cells = new Int32Array(cnt);
+    let cp = 0;
+    for (let i = 0; i < N * N; i++) if (kind[i] === 0) cells[cp++] = i;
     const r = rng(0x9E3779B9 ^ N);
     const perm = new Int32Array(cells.length >> 2); // permutes whole bytes (4 adjacent cells) so a burst hits few bytes
     for (let i = 0; i < perm.length; i++) perm[i] = i;
@@ -279,33 +282,24 @@ const Prism = (() => {
     const r2 = rng(0x5bd1e995 ^ (N * 2654435761));
     const wh = new Uint8Array(cells.length);
     for (let i = 0; i < wh.length; i++) wh[i] = Math.floor(r2() * 4);
-    layoutKeys.push(N);
-    if (layoutKeys.length > 3) delete layoutCache[layoutKeys.shift()];
     return layoutCache[N] = { kind, cells, perm, wh };
   }
   // ring calibration colour index: edge 0 top,1 right,2 bottom,3 left ; i along the edge
   const ringColor = (edge, i) => (i + edge) & 3;
 
   const blockCache = {};
-  const totalBytes = (N) => (N * N - 256 - 4 * (N - 16)) >> 2;
-  const parOf = (size, level) => { const p = Math.max(6, Math.round(size * RATIO[level])); return p > size - 2 ? size - 2 : p; };
-  function capFor(N, level) {
-    const total = totalBytes(N), nb = Math.ceil(total / 255);
-    const base = Math.floor(total / nb), extra = total % nb;
-    let cap = 0;
-    for (let i = 0; i < nb; i++) { const size = base + (i < extra ? 1 : 0); cap += size - parOf(size, level); }
-    return cap;
-  }
   function blocksFor(N, level) {
     const key = N * 4 + level;
     if (blockCache[key]) return blockCache[key];
-    const total = totalBytes(N);
+    const total = cellBytes(N);
     const nb = Math.ceil(total / 255);
     const base = Math.floor(total / nb), extra = total % nb;
     const blocks = []; let dataCap = 0;
     for (let i = 0; i < nb; i++) {
       const size = base + (i < extra ? 1 : 0);
-      const par = parOf(size, level);
+      let par = Math.round(size * RATIO[level]);
+      if (RATIO[level] > 0 && par < 6) par = 6;   // کف ترمیم فقط برای سطوح غیرصفر
+      if (par > size - 2) par = size - 2;
       blocks.push({ size, par, data: size - par }); dataCap += size - par;
     }
     return blockCache[key] = { blocks, total, dataCap };
@@ -333,24 +327,30 @@ const Prism = (() => {
 
   /* ---------- Encode to module matrix ---------- */
   function chooseN(len, level) {
-    for (const N of SIZES) if (capFor(N, level) >= len) return N;
+    for (const N of SIZES) if (blocksFor(N, level).dataCap >= len) return N;
     return 0;
   }
   // matrix values: 0..3 palette colour, 4 finder(dark), 5 white
-  function build(frame, level) {
+  function build(frame, level, onProg) {
+    const P = onProg || (() => {});
+    P(0, 'چیدمان…');
     const N = chooseN(frame.length, level);
     if (!N) return null;
     const { blocks, total, dataCap } = blocksFor(N, level);
     const L = layout(N);
+    P(0.08, 'ترمیم خطا…');
     const bytes = new Uint8Array(total);
     let fo = 0, o = 0;
-    for (const bl of blocks) {
+    for (let bi = 0; bi < blocks.length; bi++) {
+      const bl = blocks[bi];
       const d = new Uint8Array(bl.data);
       d.set(frame.subarray(fo, Math.min(fo + bl.data, frame.length)));
       fo += bl.data;
       const par = rsEncode(d, bl.par);
       bytes.set(d, o); bytes.set(par, o + bl.data); o += bl.size;
+      if ((bi & 31) === 31) P(0.08 + 0.54 * (bi + 1) / blocks.length, 'ترمیم خطا…');
     }
+    P(0.65, 'چیدن خانه‌ها…');
     const m = new Uint8Array(N * N).fill(WHITE);
     for (const [ox, oy] of [[0, 0], [N - 7, 0], [0, N - 7], [N - 7, N - 7]])
       for (let y = 0; y < 7; y++) for (let x = 0; x < 7; x++) {
@@ -365,10 +365,13 @@ const Prism = (() => {
     }
     const cnt = L.cells.length;
     for (let k = 0; k < cnt; k++) m[L.cells[k]] = L.wh[k]; // filler cells (whitened zeros)
+    P(0.72, 'نوشتن داده‌ها…');
     for (let i = 0; i < total; i++) {
       const v = bytes[i], g = 4 * L.perm[i];
       for (let j = 0; j < 4; j++) m[L.cells[g + j]] = ((v >> (6 - 2 * j)) & 3) ^ L.wh[g + j];
+      if ((i & 65535) === 65535) P(0.72 + 0.28 * i / total, 'نوشتن داده‌ها…');
     }
+    P(1, 'تمام');
     return { N, m, level, total, dataCap, used: frame.length };
   }
 
@@ -453,7 +456,7 @@ const Prism = (() => {
     return { cy: top + c / 2, m: mv };
   }
 
-  function findFinders(bin, gw, gh, cap) {
+  function findFinders(bin, gw, gh) {
     const cand = [];
     const rs = new Int32Array(gw + 2), rl = new Int32Array(gw + 2);
     for (let y = 0; y < gh; y++) {
@@ -483,7 +486,7 @@ const Prism = (() => {
             k.m = (k.m * k.n + (m + vr.m) / 2) / (k.n + 1); k.n++; found = true; break;
           }
         }
-        if (!found && cand.length < cap) cand.push({ x: cx, y: vr.cy, m: (m + vr.m) / 2, n: 1 });
+        if (!found && cand.length < 500) cand.push({ x: cx, y: vr.cy, m: (m + vr.m) / 2, n: 1 });
       }
     }
     return cand;
@@ -571,7 +574,6 @@ const Prism = (() => {
     const L = layout(N);
     const grid = new Uint8Array(N * N);
     const cells = L.cells;
-    const col = [[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
     for (let k = 0; k < cells.length; k++) {
       const idx = cells[k], x = idx % N, y = (idx / N) | 0;
       const u = (x + 0.5) / N, v = (y + 0.5) / N;
@@ -590,8 +592,10 @@ const Prism = (() => {
     return grid;
   }
 
-  function scanPass(rgba, w, h, f, cap) {
+  function scan(rgba, w, h, opts) {
     const t0 = Date.now();
+    const maxDim = (opts && opts.maxDim) || 1100;
+    const f = Math.max(1, Math.ceil(Math.max(w, h) / maxDim));
     const gw = Math.floor(w / f), gh = Math.floor(h / f);
     const gray = new Uint8Array(gw * gh);
     if (f === 1) {
@@ -624,11 +628,12 @@ const Prism = (() => {
         bin[y * gw + x] = (g * cnt * 100 < sum * 87 || g < dark) ? 1 : 0;
       }
     }
-    const cands = findFinders(bin, gw, gh, cap);
+    const cands = findFinders(bin, gw, gh);
     const quads = quadCandidates(cands);
     if (!quads.length) return { ok: false, corners: null, ms: Date.now() - t0 };
     let corners = quads[0].pts.map(p => [p.x * f, p.y * f]);
-    const level_order = [1, 0, 2, 3];
+    // ترتیب تلاش: پیش‌فرض (۱)، سپس ۰، ۲، بعد ۴ (بدون ترمیم)، و در آخر ۳
+    const level_order = [1, 0, 2, 4, 3];
     for (const q of quads) {
       const pts = q.pts;
       const P = pts.map(p => [p.x * f, p.y * f]);
@@ -638,7 +643,8 @@ const Prism = (() => {
       const a = ((al % (Math.PI / 2)) + Math.PI / 2) % (Math.PI / 2);
       const s = Math.max(Math.cos(a), Math.sin(a));
       const Nest = side / (mAvg * s) + 7;
-      const computeRots = (N) => {
+      const Ns = SIZES.slice().sort((p, q2) => Math.abs(p - Nest) - Math.abs(q2 - Nest)).slice(0, 3);
+      for (const N of Ns) {
         const src = [[3.5, 3.5], [N - 3.5, 3.5], [N - 3.5, N - 3.5], [3.5, N - 3.5]];
         const rots = [];
         for (let r = 0; r < 4; r++) {
@@ -650,26 +656,6 @@ const Prism = (() => {
           rots.push({ r, H, sample, rp });
         }
         rots.sort((p, q2) => p.rp.ratio - q2.rp.ratio);
-        return rots;
-      };
-      let Ns, pre = null;
-      if (Nest > 260) {
-        // large codes: module size estimate is too coarse, so rank candidate sizes by calibration-ring consistency
-        const range = Math.max(16, Nest * 0.08);
-        pre = new Map();
-        const scored = [];
-        for (const N of SIZES) {
-          if (Math.abs(N - Nest) > range) continue;
-          const rots = computeRots(N);
-          if (rots.length) { pre.set(N, rots); scored.push({ N, ratio: rots[0].rp.ratio }); }
-        }
-        scored.sort((p, q2) => p.ratio - q2.ratio);
-        Ns = scored.slice(0, 3).map(x => x.N);
-      } else {
-        Ns = SIZES.slice().sort((p, q2) => Math.abs(p - Nest) - Math.abs(q2 - Nest)).slice(0, 3);
-      }
-      for (const N of Ns) {
-        const rots = pre ? pre.get(N) : computeRots(N);
         for (let t = 0; t < Math.min(2, rots.length); t++) {
           const R = rots[t];
           if (R.rp.ratio > 0.7) break;
@@ -684,22 +670,6 @@ const Prism = (() => {
       }
     }
     return { ok: false, corners, ms: Date.now() - t0 };
-  }
-
-  // opts.deep: also retry at finer resolutions (used for uploaded images, where large codes are expected)
-  function scan(rgba, w, h, opts) {
-    const t0 = Date.now(), maxd = Math.max(w, h);
-    const fs = [Math.max(1, Math.ceil(maxd / 1100))];
-    const deep = !!(opts && opts.deep);
-    if (deep) for (const tgt of [2600, 5000]) { const f = Math.max(1, Math.ceil(maxd / tgt)); if (f < fs[fs.length - 1]) fs.push(f); }
-    let best = null;
-    for (const f of fs) {
-      const r = scanPass(rgba, w, h, f, deep ? 4000 : 500);
-      if (r.ok) { r.ms = Date.now() - t0; return r; }
-      if (!best || (r.corners && !best.corners)) best = r;
-    }
-    best.ms = Date.now() - t0;
-    return best;
   }
 
   /* ---------- Seal / unseal text (compress + optional AES-GCM) ---------- */
@@ -744,10 +714,8 @@ const Prism = (() => {
     return { text: new TextDecoder().decode(body) };
   }
 
-  return { SIZES, RATIO, FIN, WHITE, layout, blocksFor, capFor, chooseN, build, buildFrame, parseFrame, scan, seal, unseal, rsEncode, rsDecode, crc32, homography };
+  return { SIZES, RATIO, FIN, WHITE, layout, blocksFor, cellBytes, chooseN, build, buildFrame, parseFrame, scan, seal, unseal, rsEncode, rsDecode, crc32, homography };
 })();
-
-
 </script>
 <script>
 (() => {
@@ -759,9 +727,20 @@ const Prism = (() => {
     { n: 'غروب', c: ['#2b0a3d', '#ff5a1f', '#ffc21a', '#12b5a6'] }
   ];
   const FINC = '#0b1020', Q = 4;
-  const st = { level: 1, pal: 0, res: null, tok: 0 };
+  const MAXS = 3200;          // حداکثر بعد بوم رسم
+  const st = { level: 1, pal: 0, res: null, tok: 0, png: null };
 
   function toast(msg) { const t = $('#toast'); t.textContent = msg; t.classList.add('on'); clearTimeout(toast.h); toast.h = setTimeout(() => t.classList.remove('on'), 2200); }
+
+  /* ---------- progress ---------- */
+  function setProg(p, t) {
+    p = Math.max(0, Math.min(1, p || 0));
+    $('#progBar').style.width = (p * 100).toFixed(1) + '%';
+    $('#progNum').textContent = fa(Math.round(p * 100)) + '٪';
+    if (t) $('#badge').textContent = t;
+  }
+  function showProg() { $('#prog').hidden = false; }
+  function hideProg() { $('#prog').hidden = true; }
 
   /* ---------- tabs ---------- */
   function tab(name) {
@@ -778,50 +757,50 @@ const Prism = (() => {
     const b = document.createElement('button');
     b.setAttribute('aria-pressed', i === 0);
     b.innerHTML = '<span class="dots">' + p.c.slice(1).map(c => `<i style="background:${c}"></i>`).join('') + '</span>' + p.n;
-    b.onclick = () => { st.pal = i; [...palBox.children].forEach((x, j) => x.setAttribute('aria-pressed', i === j)); stale(); };
+    b.onclick = () => { st.pal = i; [...palBox.children].forEach((x, j) => x.setAttribute('aria-pressed', i === j)); schedule(); };
     palBox.appendChild(b);
   });
   $('#lv').onclick = e => {
     const b = e.target.closest('button'); if (!b) return;
-    st.level = +b.dataset.v; [...$('#lv').children].forEach(x => x.setAttribute('aria-pressed', x === b)); stale();
+    st.level = +b.dataset.v; [...$('#lv').children].forEach(x => x.setAttribute('aria-pressed', x === b)); schedule();
   };
-  $('#txt').oninput = stale; $('#pw').oninput = stale;
-  $('#mkBtn').onclick = make;
-  // any change after a build only marks the result as outdated; nothing is rebuilt until the button is pressed
-  function stale() {
-    if (!st.res) return;
-    st.tok++; st.res = null;
-    $('#dlPng').disabled = $('#dlSvg').disabled = true;
-    $('#badge').className = 'badge wait'; $('#badge').textContent = 'تنظیمات تغییر کرد؛ برای ساخت کد جدید دکمه‌ی «ساخت کد» را بزنید.';
-    $('#cv').style.opacity = '.35';
-  }
-  const nextPaint = () => new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
+  $('#txt').oninput = schedule; $('#pw').oninput = schedule;
+  let timer; function schedule() { clearTimeout(timer); timer = setTimeout(make, 160); }
 
   /* ---------- drawing ---------- */
   function rr(g, x, y, w, h, r) {
     g.moveTo(x + r, y); g.lineTo(x + w - r, y); g.arcTo(x + w, y, x + w, y + r, r); g.lineTo(x + w, y + h - r); g.arcTo(x + w, y + h, x + w - r, y + h, r);
     g.lineTo(x + r, y + h); g.arcTo(x, y + h, x, y + h - r, r); g.lineTo(x, y + r); g.arcTo(x, y, x + r, y, r); g.closePath();
   }
+  function pickScale(N) {
+    let sc = Math.min(40, Math.max(6, Math.ceil(1200 / (N + 2 * Q))));
+    if ((N + 2 * Q) * sc > MAXS) sc = Math.max(2, Math.floor(MAXS / (N + 2 * Q)));
+    return sc;
+  }
   function drawCode(cv, res, cols, sc) {
     const { N, m } = res, S = (N + 2 * Q) * sc;
     cv.width = cv.height = S;
     const g = cv.getContext('2d', { willReadFrequently: true });
+    const simple = sc <= 3, ins = 0.07 * sc, cs = sc - 2 * ins, rad = 0.28 * sc;
     g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
-    if (sc < 6) { // very large codes: plain full cells (fast, and the most legible for the scanner)
-      for (let c = 0; c < 4; c++) {
-        g.fillStyle = cols[c];
-        for (let i = 0; i < m.length; i++) if (m[i] === c) g.fillRect(((i % N) + Q) * sc, (((i / N) | 0) + Q) * sc, sc, sc);
-      }
-    } else {
-      const ins = 0.07 * sc, cs = sc - 2 * ins, r = 0.28 * sc;
+    const BAND = Math.max(16, Math.ceil(N / 24));
+    for (let y0 = 0; y0 < N; y0 += BAND) {
+      const y1 = Math.min(N, y0 + BAND);
       for (let c = 0; c < 4; c++) {
         g.beginPath();
-        for (let i = 0; i < m.length; i++) if (m[i] === c) rr(g, ((i % N) + Q) * sc + ins, (((i / N) | 0) + Q) * sc + ins, cs, cs, r);
+        for (let y = y0; y < y1; y++) {
+          const row = y * N, yy = (y + Q) * sc;
+          for (let x = 0; x < N; x++) {
+            if (m[row + x] !== c) continue;
+            if (simple) g.rect((x + Q) * sc, yy, sc, sc);
+            else rr(g, (x + Q) * sc + ins, yy + ins, cs, cs, rad);
+          }
+        }
         g.fillStyle = cols[c]; g.fill();
       }
     }
-    g.fillStyle = FINC; g.beginPath();
     const fpos = [[0, 0], [N - 7, 0], [0, N - 7], [N - 7, N - 7]];
+    g.fillStyle = FINC; g.beginPath();
     for (const [fx, fy] of fpos) rr(g, (fx + Q) * sc, (fy + Q) * sc, 7 * sc, 7 * sc, 1.9 * sc);
     g.fill();
     g.fillStyle = '#fff'; g.beginPath();
@@ -846,52 +825,220 @@ const Prism = (() => {
     return s + '</svg>';
   }
 
+  /* ================= Web Worker (offload heavy work) ================= */
+  const WORKER_GLUE = `
+const QW=4, FINCW='#0b1020';
+function rrW(g,x,y,w,h,r){g.moveTo(x+r,y);g.lineTo(x+w-r,y);g.arcTo(x+w,y,x+w,y+r,r);g.lineTo(x+w,y+h-r);g.arcTo(x+w,y+h,x+w-r,y+h,r);g.lineTo(x+r,y+h);g.arcTo(x,y+h,x,y+h-r,r);g.lineTo(x,y+r);g.arcTo(x,y,x+r,y,r);g.closePath();}
+function drawW(g,N,m,cols,sc,S){
+  const simple=sc<=3, ins=0.07*sc, cs=sc-2*ins, rad=0.28*sc;
+  g.fillStyle='#fff'; g.fillRect(0,0,S,S);
+  const BAND=Math.max(16,Math.ceil(N/24));
+  for(let y0=0;y0<N;y0+=BAND){
+    const y1=Math.min(N,y0+BAND);
+    for(let c=0;c<4;c++){
+      g.beginPath();
+      for(let y=y0;y<y1;y++){
+        const row=y*N, yy=(y+QW)*sc;
+        for(let x=0;x<N;x++){
+          if(m[row+x]!==c) continue;
+          if(simple) g.rect((x+QW)*sc,yy,sc,sc);
+          else rrW(g,(x+QW)*sc+ins,yy+ins,cs,cs,rad);
+        }
+      }
+      g.fillStyle=cols[c]; g.fill();
+    }
+  }
+  const fp=[[0,0],[N-7,0],[0,N-7],[N-7,N-7]];
+  g.fillStyle=FINCW; g.beginPath();
+  for(const p of fp) rrW(g,(p[0]+QW)*sc,(p[1]+QW)*sc,7*sc,7*sc,1.9*sc);
+  g.fill();
+  g.fillStyle='#fff'; g.beginPath();
+  for(const p of fp) rrW(g,(p[0]+QW+1)*sc,(p[1]+QW+1)*sc,5*sc,5*sc,1.25*sc);
+  g.fill();
+  g.fillStyle=FINCW; g.beginPath();
+  for(const p of fp) rrW(g,(p[0]+QW+2)*sc,(p[1]+QW+2)*sc,3*sc,3*sc,0.85*sc);
+  g.fill();
+}
+self.onmessage=async(e)=>{
+  const d=e.data;
+  if(!d) return;
+  if(d.cmd==='ping'){ self.postMessage({type:'ready'}); return; }
+  if(d.cmd!=='encode') return;
+  const post=(p,t)=>self.postMessage({id:d.id,type:'p',p:p,t:t});
+  try{
+    post(0.01,'آماده‌سازی داده…');
+    const frame=await Prism.seal(d.text,{password:d.password});
+    post(0.05,'محاسبهٔ ابعاد…');
+    const res=Prism.build(frame,d.level,(p,t)=>post(0.05+p*0.35,t));
+    if(!res){ self.postMessage({id:d.id,type:'toobig'}); return; }
+    const N=res.N, m=res.m;
+    let sc=Math.min(40,Math.max(6,Math.ceil(1200/(N+2*QW))));
+    const MAXS=3200;
+    if((N+2*QW)*sc>MAXS) sc=Math.max(2,Math.floor(MAXS/(N+2*QW)));
+    const S=(N+2*QW)*sc;
+    post(0.42,'رسم کد…');
+    const cv=new OffscreenCanvas(S,S);
+    const g=cv.getContext('2d',{willReadFrequently:true});
+    drawW(g,N,m,d.cols,sc,S);
+    post(0.6,'بررسی صحت کد (خودآزمون)…');
+    let test=null, tms=0;
+    try{
+      const img=g.getImageData(0,0,S,S);
+      // برای خودآزمون از داون‌سمپل خودداری می‌کنیم تا ماژول‌های ریز از دست نروند
+      const sr=Prism.scan(img.data,S,S,{maxDim:S});
+      test=sr.ok; tms=sr.ms||0;
+    }catch(err){ test=null; }
+    post(0.88,'ساخت خروجی…');
+    const blob=await cv.convertToBlob({type:'image/png'});
+    const bmp=cv.transferToImageBitmap();
+    self.postMessage({id:d.id,type:'ok',N:N,used:res.used,cap:res.dataCap,total:res.total,level:res.level,test:test,ms:tms,S:S,blob:blob,bmp:bmp,m:m},[bmp,m.buffer]);
+  }catch(err){
+    self.postMessage({id:d.id,type:'err',msg:(err&&err.message)||String(err)});
+  }
+};
+`;
+
+  let wkr = null;
+  const jobs = new Map();
+  let jobSeq = 0;
+
+  function onWorkerMsg(e) {
+    const d = e.data;
+    if (!d || d.id == null) return;
+    const j = jobs.get(d.id);
+    if (!j) return;
+    if (d.type === 'p') { if (j.tok === st.tok) setProg(d.p, d.t); return; }
+    jobs.delete(d.id);
+    if (d.type === 'ok') j.resolve(d);
+    else if (d.type === 'toobig') j.resolve({ tooBig: true });
+    else j.reject(new Error(d.msg || 'خطای ناشناخته'));
+  }
+
+  function initWorker() {
+    return new Promise(resolve => {
+      let src;
+      try { src = document.getElementById('prism').textContent + WORKER_GLUE; }
+      catch (e) { resolve(null); return; }
+      let url = null, w = null;
+      try {
+        url = URL.createObjectURL(new Blob([src], { type: 'application/javascript' }));
+        w = new Worker(url);
+      } catch (e) { if (url) URL.revokeObjectURL(url); resolve(null); return; }
+      const to = setTimeout(() => { try { w.terminate(); } catch (e) { } resolve(null); }, 6000);
+      w.onmessage = ev => {
+        if (ev.data && ev.data.type === 'ready') {
+          clearTimeout(to);
+          w.onmessage = onWorkerMsg;
+          w.onerror = () => { try { w.terminate(); } catch (e) { } wkr = null; };
+          wkr = w;
+          resolve(w);
+        }
+      };
+      w.onerror = () => { clearTimeout(to); try { w.terminate(); } catch (e) { } resolve(null); };
+      w.postMessage({ cmd: 'ping' });
+    });
+  }
+
+  function runWorker(text, password, level, tok) {
+    return new Promise((resolve, reject) => {
+      const id = ++jobSeq;
+      jobs.set(id, { resolve, reject, tok });
+      wkr.postMessage({ cmd: 'encode', id, text, password, level, cols: PALS[st.pal].c });
+    });
+  }
+
+  /* ---------- local fallback (no Worker / no OffscreenCanvas) ---------- */
+  async function runLocal(text, tok) {
+    const fr = await Prism.seal(text, { password: $('#pw').value });
+    if (tok !== st.tok) return null;
+    setProg(0.1, 'محاسبهٔ ابعاد…');
+    await new Promise(r => setTimeout(r, 0));
+    const res = Prism.build(fr, st.level, (p, t) => setProg(0.1 + p * 0.6, t));
+    if (!res) return { tooBig: true };
+    setProg(0.75, 'رسم کد…');
+    await new Promise(r => setTimeout(r, 0));
+    const sc = pickScale(res.N), cols = PALS[st.pal].c;
+    drawCode($('#cv'), res, cols, sc);
+    const cv = $('#cv');
+    let test = null;
+    setProg(0.86, 'بررسی صحت کد (خودآزمون)…');
+    await new Promise(r => setTimeout(r, 0));
+    try {
+      const img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height);
+      // برای خودآزمون داون‌سمپل نمی‌کنیم
+      test = Prism.scan(img.data, cv.width, cv.height, { maxDim: cv.width }).ok;
+    } catch (e) { test = null; }
+    st.png = null;
+    return { res, test, S: cv.width, m: res.m };
+  }
+
   /* ---------- make ---------- */
-  const kb = n => fa(Math.round(n / 1000));
   async function make() {
     const tok = ++st.tok, text = $('#txt').value;
-    const badge = $('#badge'), btn = $('#mkBtn');
-    if (!text) { badge.className = 'badge wait'; badge.textContent = 'ابتدا متن یا لینک را بنویسید.'; return; }
-    btn.disabled = true; btn.textContent = 'در حال ساخت…';
-    badge.className = 'badge wait'; badge.textContent = 'در حال ساخت کد…';
+    const badge = $('#badge');
+    if (!text) { badge.className = 'badge wait'; badge.textContent = 'متنی بنویسید تا کد ساخته شود.'; hideProg(); return; }
+    showProg();
+    setProg(0, 'در حال ساخت کد…');
+    badge.className = 'badge wait';
+    badge.textContent = 'در حال ساخت کد…';
     $('#dlPng').disabled = $('#dlSvg').disabled = true;
-    await nextPaint();
     try {
-      const fr = await Prism.seal(text, { password: $('#pw').value });
-      if (tok !== st.tok) return;
-      const res = Prism.build(fr, st.level);
-      if (!res) {
+      let out;
+      if (wkr) out = await runWorker(text, $('#pw').value, st.level, tok);
+      else out = await runLocal(text, tok);
+      if (tok !== st.tok || !out) return;
+
+      if (out.tooBig) {
         badge.className = 'badge bad';
-        badge.textContent = 'حجم داده (پس از فشرده‌سازی حدود ' + kb(fr.length) + ' کیلوبایت) از ظرفیت این سطح (حدود ' + kb(Prism.capFor(Prism.SIZES[Prism.SIZES.length - 1], st.level)) + ' کیلوبایت) بیشتر است. سطح ترمیم را سبک‌تر کنید یا متن را کوتاه‌تر کنید.';
+        badge.textContent = 'متن حتی برای بزرگ‌ترین اندازهٔ ممکن هم بزرگ است؛ متن را کوتاه‌تر کنید.';
+        hideProg();
         return;
       }
-      let sc = Math.max(6, Math.min(40, Math.ceil(1200 / (res.N + 2 * Q))));
-      if (sc * (res.N + 2 * Q) > 4096) sc = Math.floor(4096 / (res.N + 2 * Q)); // keep within phone canvas limits
-      const cols = PALS[st.pal].c;
-      drawCode($('#cv'), res, cols, sc);
-      $('#cv').style.opacity = '';
+
+      let res, S;
+      if (out.bmp) {
+        res = { N: out.N, m: new Uint8Array(out.m), level: out.level, total: out.total, dataCap: out.cap, used: out.used };
+        S = out.S;
+        const cv = $('#cv');
+        cv.width = cv.height = S;
+        cv.getContext('2d').drawImage(out.bmp, 0, 0);
+        out.bmp.close();
+        st.png = out.blob;
+      } else {
+        res = out.res; S = out.S;
+        st.png = null;
+      }
       st.res = res;
-      const big = res.N > 253;
-      $('#dlPng').disabled = false; $('#dlSvg').disabled = big;
+      $('#dlPng').disabled = false;
+      $('#dlSvg').disabled = false;
+
+      if (out.test === true) { badge.className = 'badge ok'; badge.textContent = 'خودآزمون موفق: کد در ' + fa(out.ms || 0) + ' میلی‌ثانیه خوانده شد'; }
+      else if (out.test === false) { badge.className = 'badge bad'; badge.textContent = 'خودآزمون ناموفق بود؛ سطح ترمیم را بالاتر ببرید.'; }
+      else { badge.className = 'badge wait'; badge.textContent = 'کد ساخته شد.'; }
+
       $('#stats').innerHTML =
         `<div class="stat"><b>${fa(res.N)}×${fa(res.N)}</b><span>خانه</span></div>` +
         `<div class="stat"><b>${fa(res.used)}</b><span>بایت از ${fa(res.dataCap)}</span></div>` +
         `<div class="stat"><b>${fa(res.N * res.N * 2 / 8 | 0)}</b><span>بایت خام</span></div>`;
-      badge.textContent = 'در حال خودآزمون…';
-      await nextPaint();
-      if (tok !== st.tok) return;
-      const cv = $('#cv'), img = cv.getContext('2d').getImageData(0, 0, cv.width, cv.height);
-      const r = Prism.scan(img.data, cv.width, cv.height, { deep: big });
-      if (tok !== st.tok) return;
-      if (r.ok) { badge.className = 'badge ok'; badge.textContent = 'خودآزمون موفق: کد در ' + fa(r.ms) + ' میلی‌ثانیه خوانده شد'; }
-      else { badge.className = 'badge bad'; badge.textContent = 'خودآزمون ناموفق بود؛ سطح ترمیم را بالاتر ببرید.'; }
-      if (big) badge.textContent += ' — این کد بزرگ است: برای خواندن، فایل PNG را بدون کوچک‌کردن در بخش «اسکن» انتخاب کنید (دوربین مناسب نیست).';
-    } catch (e) { badge.className = 'badge bad'; badge.textContent = 'خطا: ' + e.message; }
-    finally { btn.disabled = false; btn.textContent = 'ساخت کد'; }
+
+      setProg(1, ''); hideProg();
+    } catch (e) {
+      badge.className = 'badge bad';
+      badge.textContent = 'خطا: ' + (e && e.message ? e.message : e);
+      hideProg();
+    }
   }
+
   function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000); }
-  $('#dlPng').onclick = () => $('#cv').toBlob(b => download('prism-code.png', b), 'image/png');
-  $('#dlSvg').onclick = () => { if (st.res) download('prism-code.svg', new Blob([svgCode(st.res, PALS[st.pal].c)], { type: 'image/svg+xml' })); };
+  $('#dlPng').onclick = () => {
+    if (st.png) { download('prism-code.png', st.png); return; }
+    $('#cv').toBlob(b => download('prism-code.png', b), 'image/png');
+  };
+  $('#dlSvg').onclick = () => {
+    if (!st.res) return;
+    if (st.res.N > 520) { toast('برای کدهای بسیار بزرگ، SVG بیش از حد سنگین می‌شود؛ از PNG استفاده کنید.'); return; }
+    download('prism-code.svg', new Blob([svgCode(st.res, PALS[st.pal].c)], { type: 'image/svg+xml' }));
+  };
 
   /* ---------- scan ---------- */
   let stream = null, running = false, last = 0;
@@ -940,9 +1087,13 @@ const Prism = (() => {
       off.width = Math.round(bmp.width * k); off.height = Math.round(bmp.height * k);
       octx.drawImage(bmp, 0, 0, off.width, off.height);
       const d = octx.getImageData(0, 0, off.width, off.height);
-      $('#vhint').hidden = false; $('#vhint').textContent = 'در حال خواندن تصویر…';
-      await new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
-      const r = Prism.scan(d.data, off.width, off.height, { deep: true });
+      let r = Prism.scan(d.data, off.width, off.height);
+      // اگر کد بسیار بزرگ است، با رزولوشن بالاتر دوباره تلاش کن
+      if (!r.ok && Math.max(off.width, off.height) > 1100) {
+        const r2 = Prism.scan(d.data, off.width, off.height, { maxDim: 2600 });
+        if (r2.ok) r = r2;
+        else if (r2.corners) r = r2;
+      }
       $('#vhint').hidden = true;
       const v = $('#viewer'); v.style.aspectRatio = off.width + '/' + off.height;
       const pv = document.createElement('canvas'); pv.width = off.width; pv.height = off.height; pv.getContext('2d').drawImage(off, 0, 0);
@@ -974,6 +1125,9 @@ const Prism = (() => {
     try { await navigator.clipboard.writeText(t); } catch (e) { const r = document.createRange(); r.selectNodeContents($('#out')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); document.execCommand('copy'); }
     toast('کپی شد');
   };
+
+  /* ---------- boot ---------- */
+  initWorker().then(() => make());
 })();
 </script>
 </body>
